@@ -1,0 +1,17 @@
+body {
+  font-family: "Poppins", sans-serif;
+}
+
+.card {
+  background: #1c1c1c;
+  border: none;
+  color: #fff;
+}
+
+#video-grid video {
+  border-radius: 10px;
+  max-width: 400px;
+  width: 100%;
+  background: black;
+  box-shadow: 0 0 15px rgba(0,0,0,0.5);
+}

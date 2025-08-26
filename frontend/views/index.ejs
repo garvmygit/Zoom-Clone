@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include("partials/header") %>
+  <title>Zoom Clone | Join Meeting</title>
+</head>
+<body class="bg-dark text-light d-flex flex-column min-vh-100">
+
+  <main class="flex-grow-1 d-flex align-items-center justify-content-center">
+    <div class="card shadow-lg p-4 text-center" style="width: 400px; border-radius: 15px;">
+      <img src="/assets/logo.png" alt="Logo" class="mb-3" style="width: 80px;">
+      <h2 class="mb-4">Join a Meeting</h2>
+
+      <form action="/room" method="get">
+        <div class="mb-3">
+          <input type="text" class="form-control form-control-lg text-center" 
+                 name="room" placeholder="Enter Room ID" required>
+        </div>
+        <button type="submit" class="btn btn-primary btn-lg w-100">Join Now</button>
+      </form>
+
+      <hr class="my-4">
+      <p class="mb-0 text-muted">Don’t have a room? <a href="/create" class="text-decoration-none">Create one</a></p>
+    </div>
+  </main>
+
+  <%- include("partials/footer") %>
+</body>
+</html>

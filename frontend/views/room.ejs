@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Video Call Room</title>
+  <link rel="stylesheet" href="/css/room.css">
+</head>
+<body>
+  <div id="video-grid"></div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/js/room.js"></script>
+  <script>
+    const ROOM_ID = "<%= roomId %>";
+    const USER_ID = Math.floor(Math.random() * 1000000);
+    init(ROOM_ID, USER_ID);
+  </script>
+</body>
+</html>
