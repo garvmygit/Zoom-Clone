@@ -1,18 +1,91 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Video Call Room</title>
+  <%- include("partials/header") %>
+  <title>Zoom Clone • Room <%= roomId %></title>
+
   <link rel="stylesheet" href="/css/room.css">
 </head>
-<body>
-  <div id="video-grid"></div>
+<body class="bg-dark text-light">
 
+  <%- include("partials/navbar") %>
+
+  <div class="room-shell container-fluid">
+    <div class="row g-3">
+
+      <!-- Stage / Large area (active speaker or pinned) -->
+      <div class="col-12 col-lg-8">
+        <div id="stage" class="stage bg-black rounded-3 shadow-sm">
+          <!-- spotlight video goes here -->
+          <div id="stage-video-wrap" class="stage-video-wrap">
+            <!-- injected by JS -->
+          </div>
+
+          <div class="stage-controls">
+            <div class="stage-meta">
+              <span id="stage-name" class="text-muted">Waiting for participants...</span>
+              <span id="share-indicator" class="badge bg-warning text-dark ms-2 d-none">Screen sharing</span>
+            </div>
+            <div class="stage-actions">
+              <button id="muteBtn" class="btn btn-outline-light">Mute</button>
+              <button id="videoBtn" class="btn btn-outline-light">Stop Video</button>
+              <button id="shareBtn" class="btn btn-outline-light">Share Screen</button>
+              <button id="layoutBtn" class="btn btn-outline-light">Toggle Layout</button>
+              <button id="leaveBtn" class="btn btn-danger">Leave</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Gallery -->
+        <div id="gallery" class="gallery mt-3 d-flex flex-wrap gap-3">
+          <!-- video tiles injected here -->
+        </div>
+      </div>
+
+      <!-- Right sidebar: participants & chat -->
+      <div class="col-12 col-lg-4">
+        <div class="card bg-dark border-0 mb-3 sidebar">
+          <div class="card-body">
+            <h5 class="card-title">Participants <span id="participants-count" class="badge bg-secondary ms-2">0</span></h5>
+            <ul id="participants-list" class="list-unstyled participants-list mb-3"></ul>
+
+            <h5 class="card-title">Chat</h5>
+            <div id="chat" class="chat-area mb-2">
+              <ul id="messages" class="list-unstyled mb-0"></ul>
+            </div>
+
+            <form id="chat-form" class="d-flex">
+              <input id="chat-input" class="form-control me-2" placeholder="Type a message..." autocomplete="off">
+              <button class="btn btn-primary">Send</button>
+            </form>
+
+            <hr class="my-3">
+
+            <div class="text-muted small">
+              <div>Room: <strong><%= roomId %></strong></div>
+              <div id="connection-status">Status: <span class="text-success">Connected</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card bg-dark border-0">
+          <div class="card-body">
+            <h6 class="card-title">Controls</h6>
+            <div class="d-grid gap-2">
+              <button id="raiseHandBtn" class="btn btn-outline-light">✋ Raise Hand</button>
+              <button id="recordBtn" class="btn btn-outline-light">● Record (local)</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <%- include("partials/footer") %>
+
+  <!-- Socket.io client and main room script -->
+  <script>const ROOM_ID = "<%= roomId %>"; const USER_NAME = "<%= typeof userName !== 'undefined' ? userName : 'Guest' %>";</script>
   <script src="/socket.io/socket.io.js"></script>
   <script src="/js/room.js"></script>
-  <script>
-    const ROOM_ID = "<%= roomId %>";
-    const USER_ID = Math.floor(Math.random() * 1000000);
-    init(ROOM_ID, USER_ID);
-  </script>
 </body>
 </html>
