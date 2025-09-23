@@ -37,3 +37,5 @@ body { background: var(--bg); color: #e9eef6; font-family: Inter, Poppins, syste
   .stage { min-height: 320px; }
   .tile { width: 48%; height: 160px; }
 }
+
+//
