@@ -2,38 +2,35 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Zoom Clone - Join a Room</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zoom Clone • Join a Room</title>
+  <%- include("partials/header") %>
   <link rel="stylesheet" href="/css/style.css">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
-<body class="bg-dark text-light">
-  
+<body class="bg-dark text-light d-flex flex-column min-vh-100">
+
   <%- include("partials/header") %>
 
-  <div class="container d-flex justify-content-center align-items-center vh-100">
-    <div class="card bg-secondary text-light p-4 shadow-lg rounded-4" style="max-width: 500px; width: 100%;">
-      <h2 class="text-center mb-4">🚀 Zoom Clone</h2>
-      <form action="/room" method="GET">
-        
-        <!-- Username -->
-        <div class="mb-3">
+  <div class="container d-flex justify-content-center align-items-center flex-grow-1">
+    <div class="card p-4 shadow-lg rounded-4 w-100" style="max-width: 480px; background: #1a1a1a;">
+      <h2 class="text-center mb-4 fw-bold">🖥️ Zoom Clone</h2>
+      <form action="/room" method="GET" class="d-flex flex-column gap-3">
+
+        <div>
           <label for="username" class="form-label">Your Name</label>
-          <input type="text" class="form-control" id="username" name="username" required placeholder="Enter your name">
+          <input type="text" class="form-control form-control-dark" id="username" name="username" required placeholder="Enter your name">
         </div>
 
-        <!-- Room ID -->
-        <div class="mb-3">
+        <div>
           <label for="roomId" class="form-label">Room ID</label>
-          <input type="text" class="form-control" id="roomId" name="roomId" placeholder="Enter room ID to join">
+          <input type="text" class="form-control form-control-dark" id="roomId" name="roomId" placeholder="Enter room ID to join">
           <div class="form-text text-light">Leave empty to create a new room.</div>
         </div>
 
-        <!-- Buttons -->
-        <div class="d-flex justify-content-between mt-4">
-          <button type="submit" class="btn btn-success w-50 me-2">Join Room</button>
-          <button type="button" id="createRoomBtn" class="btn btn-primary w-50 ms-2">Create New Room</button>
+        <div class="d-flex gap-2 mt-3">
+          <button type="submit" class="btn btn-success flex-grow-1">Join Room</button>
+          <button type="button" id="createRoomBtn" class="btn btn-primary flex-grow-1">Create Room</button>
         </div>
-
       </form>
     </div>
   </div>
@@ -43,11 +40,7 @@
   <script>
     document.getElementById("createRoomBtn").addEventListener("click", () => {
       const username = document.getElementById("username").value.trim();
-      if (!username) {
-        alert("Please enter your name first!");
-        return;
-      }
-      // Generate a random unique room ID
+      if (!username) return alert("Please enter your name!");
       const roomId = Math.random().toString(36).substring(2, 9);
       window.location.href = `/room?roomId=${roomId}&username=${encodeURIComponent(username)}`;
     });
