@@ -1,0 +1,17 @@
+{
+  "watch": [
+    ".env",
+    "server.js",
+    "src"
+  ],
+  "ext": "js,json",
+  "ignore": [
+    "public/*",
+    "node_modules/*"
+  ]
+}
+
+
+
+
+
