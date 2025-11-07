@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zoom Clone • Join a Room</title>
+  <%- include("partials/header") %>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="bg-dark text-light d-flex flex-column min-vh-100">
+
+  <%- include("partials/header") %>
+
+  <div class="container d-flex justify-content-center align-items-center flex-grow-1">
+    <div class="card p-4 shadow-lg rounded-4 w-100" style="max-width: 480px; background: #1a1a1a;">
+      <h2 class="text-center mb-4 fw-bold">🖥️ Zoom Clone</h2>
+      <form action="/room" method="GET" class="d-flex flex-column gap-3">
+
+        <div>
+          <label for="username" class="form-label">Your Name</label>
+          <input type="text" class="form-control form-control-dark" id="username" name="username" required placeholder="Enter your name">
+        </div>
+
+        <div>
+          <label for="roomId" class="form-label">Room ID</label>
+          <input type="text" class="form-control form-control-dark" id="roomId" name="roomId" placeholder="Enter room ID to join">
+          <div class="form-text text-light">Leave empty to create a new room.</div>
+        </div>
+
+        <div class="d-flex gap-2 mt-3">
+          <button type="submit" class="btn btn-success flex-grow-1">Join Room</button>
+          <button type="button" id="createRoomBtn" class="btn btn-primary flex-grow-1">Create Room</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <%- include("partials/footer") %>
+
+  <script>
+    document.getElementById("createRoomBtn").addEventListener("click", () => {
+      const username = document.getElementById("username").value.trim();
+      if (!username) return alert("Please enter your name!");
+      const roomId = Math.random().toString(36).substring(2, 9);
+      window.location.href = `/room?roomId=${roomId}&username=${encodeURIComponent(username)}`;
+    });
+  </script>
+
+</body>
+</html>
