@@ -127,94 +127,91 @@ if (section) {
 
   // UI controls - Tab switching
   let currentTab = 'chat';
-  const chatSidebar = document.getElementById('chatSidebar');
+  const chatWidget = document.getElementById('chatWidget');
   const toggleChatBtn = document.getElementById('toggleChatBtn');
   const chatIcon = document.getElementById('chatIcon');
-  const toggleChatInHeader = document.getElementById('toggleChat');
+  const toggleChatWidget = document.getElementById('toggleChatWidget');
+  const closeChatWidget = document.getElementById('closeChatWidget');
+  const chatWidgetHeader = chatWidget?.querySelector('.chat-widget-header');
+  const videoGrid = document.getElementById('video-grid');
   
-  // Chat toggle state
-  let isChatOpen = true; // Chat is open by default on desktop
+  // Chat widget state: 'expanded', 'minimized', or 'hidden'
+  let chatWidgetState = 'minimized'; // Chat starts minimized so it doesn't block video content
   
   function updateChatButtonState() {
     if (toggleChatBtn && chatIcon) {
-      if (isChatOpen) {
-        toggleChatBtn.classList.remove('active');
-        chatIcon.className = 'fas fa-comments';
-        toggleChatBtn.setAttribute('data-tooltip', 'Close Chat');
-      } else {
+      if (chatWidgetState === 'hidden') {
         toggleChatBtn.classList.add('active');
         chatIcon.className = 'fas fa-comment-slash';
         toggleChatBtn.setAttribute('data-tooltip', 'Open Chat');
+      } else {
+        toggleChatBtn.classList.remove('active');
+        chatIcon.className = 'fas fa-comments';
+        toggleChatBtn.setAttribute('data-tooltip', 'Close Chat');
       }
     }
   }
   
-  function toggleChatSidebar() {
-    if (!chatSidebar) return;
+  function setChatWidgetState(state) {
+    if (!chatWidget) return;
     
-    isChatOpen = !isChatOpen;
+    chatWidgetState = state;
     
-    // Get the parent grid container
-    const gridContainer = chatSidebar.parentElement;
-    const videoGridContainer = document.querySelector('.col-span-1.lg\\:col-span-3');
+    // Remove all state classes
+    chatWidget.classList.remove('expanded', 'minimized', 'hidden');
     
-    if (isChatOpen) {
-      chatSidebar.classList.remove('hidden');
-      // Restore grid layout on desktop
-      if (window.innerWidth >= 1025 && gridContainer) {
-        gridContainer.className = 'flex-1 grid grid-cols-1 lg:grid-cols-4 gap-0 overflow-hidden';
-        if (videoGridContainer) {
-          videoGridContainer.className = 'col-span-1 lg:col-span-3 relative';
-        }
+    // Add the appropriate state class
+    if (state === 'minimized') {
+      chatWidget.classList.add('minimized');
+      if (toggleChatWidget) {
+        toggleChatWidget.setAttribute('data-tooltip', 'Expand Chat');
+        const icon = toggleChatWidget.querySelector('i');
+        if (icon) icon.className = 'fas fa-chevron-up';
       }
-      // Ensure the correct tab is visible
-      if (currentTab === 'chat') {
-        chatPanel.classList.remove('hidden');
-        chatbotPanel.classList.add('hidden');
-      } else {
-        chatPanel.classList.add('hidden');
-        chatbotPanel.classList.remove('hidden');
+    } else if (state === 'hidden') {
+      chatWidget.classList.add('hidden');
+      // Remove any padding from video grid when chat is hidden
+      if (videoGrid) {
+        videoGrid.classList.remove('chat-visible');
       }
     } else {
-      chatSidebar.classList.add('hidden');
-      // Expand video grid to full width on desktop
-      if (window.innerWidth >= 1025 && gridContainer) {
-        gridContainer.className = 'flex-1 grid grid-cols-1 gap-0 overflow-hidden';
-        if (videoGridContainer) {
-          videoGridContainer.className = 'col-span-1 relative';
-        }
+      // expanded
+      chatWidget.classList.add('expanded');
+      if (toggleChatWidget) {
+        toggleChatWidget.setAttribute('data-tooltip', 'Minimize Chat');
+        const icon = toggleChatWidget.querySelector('i');
+        if (icon) icon.className = 'fas fa-chevron-down';
+      }
+      // Add class to video grid when chat is visible (for potential styling)
+      if (videoGrid) {
+        videoGrid.classList.add('chat-visible');
       }
     }
     
     updateChatButtonState();
   }
   
-  // Handle window resize to maintain correct layout
-  let resizeTimeout;
-  window.addEventListener('resize', () => {
-    clearTimeout(resizeTimeout);
-    resizeTimeout = setTimeout(() => {
-      const gridContainer = chatSidebar?.parentElement;
-      const videoGridContainer = document.querySelector('.col-span-1.lg\\:col-span-3, .col-span-1.relative');
-      
-      if (window.innerWidth >= 1025) {
-        // Desktop layout
-        if (gridContainer) {
-          if (isChatOpen) {
-            gridContainer.className = 'flex-1 grid grid-cols-1 lg:grid-cols-4 gap-0 overflow-hidden';
-            if (videoGridContainer) {
-              videoGridContainer.className = 'col-span-1 lg:col-span-3 relative';
-            }
-          } else {
-            gridContainer.className = 'flex-1 grid grid-cols-1 gap-0 overflow-hidden';
-            if (videoGridContainer) {
-              videoGridContainer.className = 'col-span-1 relative';
-            }
-          }
-        }
-      }
-    }, 100);
-  });
+  function toggleChatWidgetVisibility() {
+    if (!chatWidget) return;
+    
+    // If hidden, show as expanded
+    // If minimized or expanded, hide completely
+    if (chatWidgetState === 'hidden') {
+      setChatWidgetState('expanded');
+    } else {
+      setChatWidgetState('hidden');
+    }
+  }
+  
+  function toggleChatWidgetMinimize() {
+    if (!chatWidget) return;
+    
+    if (chatWidgetState === 'minimized') {
+      setChatWidgetState('expanded');
+    } else {
+      setChatWidgetState('minimized');
+    }
+  }
   
   function switchTab(tab) {
     currentTab = tab;
@@ -252,13 +249,37 @@ if (section) {
   tabChat?.addEventListener('click', () => switchTab('chat'));
   tabAssistant?.addEventListener('click', () => switchTab('assistant'));
   
-  // Toggle chat sidebar from toolbar button
-  toggleChatBtn?.addEventListener('click', toggleChatSidebar);
+  // Toggle chat widget visibility from toolbar button (hide/show completely)
+  toggleChatBtn?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    toggleChatWidgetVisibility();
+  });
   
-  // Toggle chat sidebar from header close button
-  toggleChatInHeader?.addEventListener('click', toggleChatSidebar);
+  // Toggle chat widget minimize/expand from widget header button
+  toggleChatWidget?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    toggleChatWidgetMinimize();
+  });
   
-  // Initialize chat button state
+  // Close chat widget completely from close button
+  closeChatWidget?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    setChatWidgetState('hidden');
+  });
+  
+  // Click on header to expand when minimized (but not on buttons)
+  chatWidgetHeader?.addEventListener('click', (e) => {
+    // Only expand if minimized and click wasn't on buttons
+    if (chatWidgetState === 'minimized' && 
+        !e.target.closest('.chat-widget-toggle') && 
+        !e.target.closest('.chat-widget-close') &&
+        !e.target.closest('.tab')) {
+      setChatWidgetState('expanded');
+    }
+  });
+  
+  // Initialize chat widget state (start minimized to not block video content)
+  setChatWidgetState('minimized');
   updateChatButtonState();
   document.getElementById('btnShare')?.addEventListener('click', async () => {
     try {
