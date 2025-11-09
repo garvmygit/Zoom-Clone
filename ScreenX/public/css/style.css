@@ -310,50 +310,159 @@ header a:hover {
   display: grid;
   gap: 1rem;
   padding: 1rem;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: 1fr;
   align-content: start;
+  justify-items: center;
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
 }
 
-/* Video grid doesn't need padding since chat widget is fixed positioned and won't affect layout */
-/* Chat widget is positioned at top-right and won't overlap with video content */
-
-#video-grid:has(.video-tile:nth-child(1):last-child) {
+/* Dynamic grid layout based on participant count */
+#video-grid.participants-1 {
   grid-template-columns: 1fr;
-  max-width: 800px;
+  max-width: 900px;
   margin: 0 auto;
 }
 
-#video-grid:has(.video-tile:nth-child(2):last-child) {
+#video-grid.participants-2 {
   grid-template-columns: repeat(2, 1fr);
+  max-width: 100%;
+  gap: 1rem;
 }
 
-#video-grid:has(.video-tile:nth-child(3):last-child) {
+#video-grid.participants-3,
+#video-grid.participants-4 {
   grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
 }
 
-#video-grid:has(.video-tile:nth-child(4):last-child) {
-  grid-template-columns: repeat(2, 1fr);
+#video-grid.participants-5,
+#video-grid.participants-6,
+#video-grid.participants-7,
+#video-grid.participants-8,
+#video-grid.participants-9 {
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
 }
 
-@media (min-width: 1024px) {
-  #video-grid:has(.video-tile:nth-child(3):last-child) {
-    grid-template-columns: repeat(3, 1fr);
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  #video-grid.participants-2,
+  #video-grid.participants-3,
+  #video-grid.participants-4 {
+    grid-template-columns: 1fr;
   }
-  
-  #video-grid:has(.video-tile:nth-child(4):last-child) {
+
+  #video-grid.participants-5,
+  #video-grid.participants-6,
+  #video-grid.participants-7,
+  #video-grid.participants-8,
+  #video-grid.participants-9 {
     grid-template-columns: repeat(2, 1fr);
   }
-  
-  #video-grid:has(.video-tile:nth-child(5):last-child),
-  #video-grid:has(.video-tile:nth-child(6):last-child) {
-    grid-template-columns: repeat(3, 1fr);
-  }
-  
-  #video-grid:has(.video-tile:nth-child(7):last-child),
-  #video-grid:has(.video-tile:nth-child(8):last-child),
-  #video-grid:has(.video-tile:nth-child(9):last-child) {
-    grid-template-columns: repeat(3, 1fr);
-  }
+}
+
+/* ============================================
+   Meeting Header
+   ============================================ */
+
+.meeting-container {
+  background: linear-gradient(135deg, var(--bg-primary) 0%, #1a1a2e 100%);
+}
+
+.meeting-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 2rem;
+  background: rgba(15, 15, 15, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
+  z-index: 999;
+  min-height: 64px;
+}
+
+.meeting-header-left,
+.meeting-header-center,
+.meeting-header-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.meeting-header-center {
+  flex: 1;
+  justify-content: center;
+}
+
+.meeting-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.meeting-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.meeting-id {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  font-family: 'Courier New', monospace;
+}
+
+.meeting-timer {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  font-family: 'Courier New', monospace;
+  padding: 0.5rem 1rem;
+  background: rgba(99, 102, 241, 0.2);
+  border-radius: 8px;
+  border: 1px solid rgba(99, 102, 241, 0.3);
+}
+
+.header-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-primary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  position: relative;
+  font-size: 1rem;
+}
+
+.header-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: scale(1.1);
+}
+
+.header-btn .participant-count {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background: var(--accent-indigo);
+  color: white;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 600;
 }
 
 /* ============================================

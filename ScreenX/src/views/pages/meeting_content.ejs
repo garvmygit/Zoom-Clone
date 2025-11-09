@@ -1,4 +1,26 @@
-<section class="w-full h-screen flex flex-col" data-meeting-id="<%= meetingId %>" data-meeting-pass="<%= meetingPassword || '' %>" data-is-host="<%= isHost %>" data-display-name="<%= typeof displayName !== 'undefined' ? displayName : '' %>">
+<section class="w-full h-screen flex flex-col meeting-container" data-meeting-id="<%= meetingId %>" data-meeting-pass="<%= meetingPassword || '' %>" data-is-host="<%= isHost %>" data-display-name="<%= typeof displayName !== 'undefined' ? displayName : '' %>">
+  <!-- Meeting Header Bar -->
+  <div class="meeting-header">
+    <div class="meeting-header-left">
+      <div class="meeting-info">
+        <h3 class="meeting-title">ScreenX Meeting</h3>
+        <span class="meeting-id">ID: <%= meetingId %></span>
+      </div>
+    </div>
+    <div class="meeting-header-center">
+      <div class="meeting-timer" id="meetingTimer">00:00</div>
+    </div>
+    <div class="meeting-header-right">
+      <button class="header-btn" id="btnParticipants" data-tooltip="Participants">
+        <i class="fas fa-users"></i>
+        <span class="participant-count" id="participantCount">1</span>
+      </button>
+      <button class="header-btn" id="btnSettings" data-tooltip="Settings">
+        <i class="fas fa-cog"></i>
+      </button>
+    </div>
+  </div>
+
   <!-- Video Grid - Now takes full width -->
   <div class="flex-1 relative overflow-hidden">
     <div id="video-grid" class="h-full p-4 overflow-auto video-grid-container"></div>
@@ -123,7 +145,7 @@
     </button>
     <% if (isHost) { %>
       <div class="w-px h-8 bg-gray-600 mx-1"></div>
-      <button data-admin="mute" class="toolbar-btn" data-tooltip="Mute All">
+      <button data-admin="mute-all" class="toolbar-btn" data-tooltip="Mute All">
         <i class="fas fa-microphone-slash"></i>
       </button>
       <button data-admin="lock" class="toolbar-btn" data-tooltip="Lock Meeting">

@@ -1,66 +1,115 @@
-<section class="container mx-auto px-4 py-16 max-w-lg page-enter">
-  <div class="glass rounded-2xl p-8">
-    <h2 class="text-3xl font-semibold mb-2 text-center">Join a Meeting</h2>
-    <p class="text-gray-400 text-center mb-8">Enter the meeting ID and password to join</p>
-    
+<div class="join-container">
+  <div class="join-background">
+    <div class="join-gradient"></div>
+  </div>
+  
+  <div class="join-card">
+    <div class="join-header">
+      <div class="join-logo">
+        <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect width="48" height="48" rx="12" fill="url(#joinGradient)"/>
+          <path d="M24 12L32 20H28V28H20V20H16L24 12Z" fill="white"/>
+          <path d="M12 32L20 24V28H28V24L36 32L28 40H20L12 32Z" fill="white" opacity="0.8"/>
+          <defs>
+            <linearGradient id="joinGradient" x1="0" y1="0" x2="48" y2="48" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#6366f1"/>
+              <stop offset="1" stop-color="#8b5cf6"/>
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+      <h1 class="join-title">Join a Meeting</h1>
+      <p class="join-subtitle">Enter the meeting ID and password to join</p>
+    </div>
+
     <% if (typeof error !== 'undefined' && error) { %>
-      <div class="mb-6 p-4 bg-red-900/40 border border-red-700 rounded-lg">
-        <div class="flex items-center gap-2">
-          <i class="fas fa-exclamation-circle text-red-400"></i>
-          <p class="text-red-300"><%= error %></p>
-        </div>
+      <div class="join-alert join-alert-error">
+        <svg class="join-alert-icon" width="20" height="20" viewBox="0 0 20 20" fill="none">
+          <path d="M10 0C4.48 0 0 4.48 0 10s4.48 10 10 10 10-4.48 10-10S15.52 0 10 0zm1 15H9v-2h2v2zm0-4H9V5h2v6z" fill="currentColor"/>
+        </svg>
+        <span><%= error %></span>
       </div>
     <% } %>
-    
-    <form id="joinForm" class="space-y-4">
-      <div>
-        <label for="userName" class="block text-sm font-medium mb-2">Your Name <span class="text-red-400">*</span></label>
+
+    <form id="joinForm" class="join-form">
+      <div class="join-input-group">
+        <label for="userName" class="join-label">
+          <svg class="join-input-icon" width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <path d="M10 10C12.7614 10 15 7.76142 15 5C15 2.23858 12.7614 0 10 0C7.23858 0 5 2.23858 5 5C5 7.76142 7.23858 10 10 10Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M0 20C0 15.5817 4.47715 12 10 12C15.5228 12 20 15.5817 20 20" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Your Name
+          <span class="join-required">*</span>
+        </label>
         <input 
           id="userName" 
           type="text" 
           placeholder="Enter your display name" 
-          class="w-full p-3 bg-gray-800/50 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent" 
+          class="join-input"
           required 
           autocomplete="name"
           maxlength="50"
         />
       </div>
-      <div>
-        <label for="mid" class="block text-sm font-medium mb-2">Meeting ID</label>
+
+      <div class="join-input-group">
+        <label for="mid" class="join-label">
+          <svg class="join-input-icon" width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <path d="M2.5 5H17.5C18.3284 5 19 5.67157 19 6.5V13.5C19 14.3284 18.3284 15 17.5 15H2.5C1.67157 15 1 14.3284 1 13.5V6.5C1 5.67157 1.67157 5 2.5 5Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M5 10H15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+          Meeting ID
+        </label>
         <input 
           id="mid" 
           type="text" 
           placeholder="Enter meeting ID" 
-          class="w-full p-3 bg-gray-800/50 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent" 
+          class="join-input"
           required 
           autocomplete="off"
           value="<%= typeof meetingId !== 'undefined' && meetingId ? meetingId : '' %>"
         />
       </div>
-      <div>
-        <label for="mpw" class="block text-sm font-medium mb-2">Password <span class="text-gray-500 text-xs">(optional)</span></label>
+
+      <div class="join-input-group">
+        <label for="mpw" class="join-label">
+          <svg class="join-input-icon" width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <path d="M15 9.16667V5.83333C15 3.16667 12.8333 1 10.1667 1C7.5 1 5.33333 3.16667 5.33333 5.83333V9.16667M10.1667 14.1667V16.3333M4.16667 19H16.1667C17.2712 19 18.1667 18.1046 18.1667 17V11.3333C18.1667 10.2288 17.2712 9.33333 16.1667 9.33333H4.16667C3.0621 9.33333 2.16667 10.2288 2.16667 11.3333V17C2.16667 18.1046 3.0621 19 4.16667 19Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Password
+          <span class="join-optional">(optional)</span>
+        </label>
         <input 
           id="mpw" 
           type="text" 
           placeholder="Enter password if required" 
-          class="w-full p-3 bg-gray-800/50 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent" 
+          class="join-input"
           autocomplete="off"
           value="<%= typeof password !== 'undefined' && password ? password : '' %>"
         />
       </div>
-      <button type="submit" class="btn btn-primary w-full">
-        <i class="fas fa-sign-in-alt mr-2"></i>Join Meeting
+
+      <button type="submit" class="join-button join-button-primary">
+        <svg class="join-button-icon" width="20" height="20" viewBox="0 0 20 20" fill="none">
+          <path d="M7.5 15L12.5 10L7.5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span>Join Meeting</span>
       </button>
     </form>
-    
-    <div class="mt-6 text-center">
-      <p class="text-sm text-gray-400">Don't have a meeting ID?</p>
-      <a href="/" class="text-indigo-400 hover:text-indigo-300 text-sm mt-2 inline-block">
-        <i class="fas fa-plus mr-1"></i>Create a new meeting
-      </a>
+
+    <div class="join-footer">
+      <p class="join-footer-text">
+        Don't have a meeting ID?
+        <a href="/" class="join-link">
+          <svg class="join-link-icon" width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M8 2V14M2 8H14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          Create a new meeting
+        </a>
+      </p>
     </div>
   </div>
-</section>
+</div>
 
 <script>
 document.getElementById('joinForm')?.addEventListener('submit', (e) => {
@@ -70,12 +119,32 @@ document.getElementById('joinForm')?.addEventListener('submit', (e) => {
   const p = document.getElementById('mpw').value.trim();
   
   if (!name) {
-    alert('Please enter your name');
+    const alertEl = document.createElement('div');
+    alertEl.className = 'join-alert join-alert-error';
+    alertEl.innerHTML = `
+      <svg class="join-alert-icon" width="20" height="20" viewBox="0 0 20 20" fill="none">
+        <path d="M10 0C4.48 0 0 4.48 0 10s4.48 10 10 10 10-4.48 10-10S15.52 0 10 0zm1 15H9v-2h2v2zm0-4H9V5h2v6z" fill="currentColor"/>
+      </svg>
+      <span>Please enter your name</span>
+    `;
+    const form = document.getElementById('joinForm');
+    form.insertBefore(alertEl, form.firstChild);
+    setTimeout(() => alertEl.remove(), 5000);
     return;
   }
   
   if (!id) {
-    alert('Please enter a meeting ID');
+    const alertEl = document.createElement('div');
+    alertEl.className = 'join-alert join-alert-error';
+    alertEl.innerHTML = `
+      <svg class="join-alert-icon" width="20" height="20" viewBox="0 0 20 20" fill="none">
+        <path d="M10 0C4.48 0 0 4.48 0 10s4.48 10 10 10 10-4.48 10-10S15.52 0 10 0zm1 15H9v-2h2v2zm0-4H9V5h2v6z" fill="currentColor"/>
+      </svg>
+      <span>Please enter a meeting ID</span>
+    `;
+    const form = document.getElementById('joinForm');
+    form.insertBefore(alertEl, form.firstChild);
+    setTimeout(() => alertEl.remove(), 5000);
     return;
   }
   
@@ -84,8 +153,279 @@ document.getElementById('joinForm')?.addEventListener('submit', (e) => {
 });
 </script>
 
+<style>
+.join-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  padding: 2rem;
+  overflow: hidden;
+}
 
+.join-background {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, #0f0f0f 0%, #1a1a2e 50%, #0f0f0f 100%);
+  z-index: 0;
+}
 
+.join-gradient {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 20% 50%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
+              radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.15) 0%, transparent 50%);
+  animation: joinGradientShift 15s ease infinite;
+}
 
+@keyframes joinGradientShift {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.8; }
+}
 
+.join-card {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 450px;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 24px;
+  padding: 3rem 2.5rem;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5),
+              0 0 0 1px rgba(255, 255, 255, 0.05) inset;
+  animation: joinFadeInUp 0.6s ease-out;
+}
 
+@keyframes joinFadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.join-header {
+  text-align: center;
+  margin-bottom: 2.5rem;
+}
+
+.join-logo {
+  display: inline-flex;
+  margin-bottom: 1.5rem;
+  animation: joinLogoFloat 3s ease-in-out infinite;
+}
+
+@keyframes joinLogoFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.join-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0 0 0.5rem 0;
+  letter-spacing: -0.02em;
+}
+
+.join-subtitle {
+  font-size: 0.9375rem;
+  color: rgba(255, 255, 255, 0.6);
+  margin: 0;
+}
+
+.join-alert {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  border-radius: 12px;
+  margin-bottom: 1.5rem;
+  animation: joinSlideDown 0.3s ease-out;
+}
+
+@keyframes joinSlideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.join-alert-error {
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #fca5a5;
+}
+
+.join-alert-icon {
+  flex-shrink: 0;
+}
+
+.join-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.join-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.join-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 0.25rem;
+}
+
+.join-input-icon {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.join-required {
+  color: #ef4444;
+  font-weight: 600;
+}
+
+.join-optional {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.5);
+  font-weight: 400;
+  margin-left: 0.25rem;
+}
+
+.join-input {
+  width: 100%;
+  padding: 0.875rem 1rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  color: #ffffff;
+  font-size: 0.9375rem;
+  transition: all 0.3s ease;
+  outline: none;
+  font-family: inherit;
+}
+
+.join-input::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.join-input:focus {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(99, 102, 241, 0.5);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.join-button {
+  width: 100%;
+  padding: 0.875rem 1.5rem;
+  border: none;
+  border-radius: 12px;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: all 0.3s ease;
+  outline: none;
+  margin-top: 0.5rem;
+  font-family: inherit;
+}
+
+.join-button-primary {
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  color: #ffffff;
+  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4);
+}
+
+.join-button-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5);
+}
+
+.join-button-primary:active {
+  transform: translateY(0);
+}
+
+.join-button-icon {
+  transition: transform 0.3s ease;
+}
+
+.join-button-primary:hover .join-button-icon {
+  transform: translateX(4px);
+}
+
+.join-footer {
+  margin-top: 2rem;
+  text-align: center;
+}
+
+.join-footer-text {
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.6);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.join-link {
+  color: #818cf8;
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.join-link:hover {
+  color: #a5b4fc;
+  text-decoration: underline;
+}
+
+.join-link-icon {
+  transition: transform 0.3s ease;
+}
+
+.join-link:hover .join-link-icon {
+  transform: rotate(90deg);
+}
+
+@media (max-width: 640px) {
+  .join-card {
+    padding: 2rem 1.5rem;
+    border-radius: 20px;
+  }
+  
+  .join-title {
+    font-size: 1.75rem;
+  }
+
+  .join-footer-text {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+}
+</style>

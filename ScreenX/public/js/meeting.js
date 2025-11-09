@@ -73,21 +73,53 @@ if (section) {
     }
     const video = tile.querySelector('video');
     if (video && video.srcObject !== stream) video.srcObject = stream;
+    
+    // Update grid layout after adding tile
+    updateVideoGridLayout();
   }
 
   function removeVideoTile(id) {
     const tile = document.getElementById(`tile-${id}`);
     if (tile) tile.remove();
+    updateVideoGridLayout();
+  }
+
+  // Update video grid layout based on participant count
+  function updateVideoGridLayout() {
+    const tiles = grid.querySelectorAll('.video-tile');
+    const count = tiles.length;
+    
+    // Remove all existing participant count classes
+    grid.classList.remove('participants-1', 'participants-2', 'participants-3', 
+                          'participants-4', 'participants-5', 'participants-6', 
+                          'participants-7', 'participants-8', 'participants-9');
+    
+    // Add appropriate class based on count
+    if (count >= 1 && count <= 9) {
+      grid.classList.add(`participants-${count}`);
+    } else if (count > 9) {
+      grid.classList.add('participants-9'); // Max 3x3 grid
+    }
+    
+    // Update participant count in header if element exists
+    const participantCountEl = document.getElementById('participantCount');
+    if (participantCountEl) {
+      participantCountEl.textContent = count;
+    }
   }
 
   async function initMedia() {
     try {
       localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
       addVideoTile('local', localStream, `${displayName} (You)`, isHost);
+      // Ensure initial layout is set
+      updateVideoGridLayout();
     } catch (e) {
       alert('Camera/Microphone access denied or unavailable. You can still join in listen-only mode.');
       localStream = new MediaStream();
       addVideoTile('local', localStream, `${displayName} (You)`, isHost);
+      // Ensure initial layout is set even without media
+      updateVideoGridLayout();
     }
   }
 
@@ -382,10 +414,82 @@ if (section) {
   });
 
   // Admin buttons
+  // Meeting timer
+  let meetingStartTime = Date.now();
+  let timerInterval = null;
+  
+  function updateMeetingTimer() {
+    const timerEl = document.getElementById('meetingTimer');
+    if (!timerEl) return;
+    
+    const elapsed = Math.floor((Date.now() - meetingStartTime) / 1000);
+    const minutes = Math.floor(elapsed / 60);
+    const seconds = elapsed % 60;
+    timerEl.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+  }
+  
+  // Start timer
+  timerInterval = setInterval(updateMeetingTimer, 1000);
+  updateMeetingTimer();
+  
+  // Lock Meeting button state management
+  let isMeetingLocked = false;
+  const lockBtn = document.querySelector('[data-admin="lock"]');
+  
+  function updateLockButtonState(locked) {
+    isMeetingLocked = locked;
+    if (lockBtn) {
+      if (locked) {
+        lockBtn.classList.add('active');
+        lockBtn.setAttribute('data-tooltip', 'Meeting Locked - Click to unlock');
+        const icon = lockBtn.querySelector('i');
+        if (icon) icon.className = 'fas fa-lock';
+      } else {
+        lockBtn.classList.remove('active');
+        lockBtn.setAttribute('data-tooltip', 'Lock Meeting');
+        const icon = lockBtn.querySelector('i');
+        if (icon) icon.className = 'fas fa-lock-open';
+      }
+    }
+  }
+  
+  // Admin action handlers
   document.querySelectorAll('[data-admin]')?.forEach(btn => {
     btn.addEventListener('click', () => {
       const action = btn.getAttribute('data-admin');
-      socket.emit('admin-action', { meetingId, action });
+      
+      if (action === 'lock') {
+        const newLockState = !isMeetingLocked;
+        socket.emit('admin-action', { meetingId, action: newLockState ? 'lock' : 'unlock' });
+        // Optimistic update
+        updateLockButtonState(newLockState);
+        
+        // Show toast notification
+        const toast = document.createElement('div');
+        toast.className = 'toast-notification';
+        toast.textContent = newLockState ? 'Meeting locked' : 'Meeting unlocked';
+        toast.style.cssText = 'position: fixed; top: 20px; right: 20px; background: rgba(99, 102, 241, 0.9); color: white; padding: 1rem 1.5rem; border-radius: 8px; z-index: 10000; animation: fadeInUp 0.3s ease-out;';
+        document.body.appendChild(toast);
+        setTimeout(() => {
+          toast.style.animation = 'fadeOut 0.3s ease-out';
+          setTimeout(() => toast.remove(), 300);
+        }, 3000);
+      } else if (action === 'mute-all') {
+        socket.emit('admin-action', { meetingId, action: 'mute-all' });
+        
+        // Show toast notification
+        const toast = document.createElement('div');
+        toast.className = 'toast-notification';
+        toast.textContent = 'All participants muted';
+        toast.style.cssText = 'position: fixed; top: 20px; right: 20px; background: rgba(99, 102, 241, 0.9); color: white; padding: 1rem 1.5rem; border-radius: 8px; z-index: 10000; animation: fadeInUp 0.3s ease-out;';
+        document.body.appendChild(toast);
+        setTimeout(() => {
+          toast.style.animation = 'fadeOut 0.3s ease-out';
+          setTimeout(() => toast.remove(), 300);
+        }, 3000);
+      } else {
+        socket.emit('admin-action', { meetingId, action });
+      }
     });
   });
 
@@ -563,7 +667,14 @@ if (section) {
       if (!res.ok) {
         const errorData = await res.json().catch(() => ({ error: 'Unknown error' }));
         removeTypingIndicator();
-        appendChatbotMessage('ScreenX Assistant', `Error: ${errorData.error || errorData.message || 'Request failed'}`, false);
+
+        // Handle rate limit errors gracefully
+        const errorMsg = errorData.error || errorData.message || 'Request failed';
+        if (errorMsg.includes('Rate limit') || errorMsg.includes('rate limit') || res.status === 429) {
+          appendChatbotMessage('ScreenX Assistant', 'AI assistant temporarily unavailable. Please try again in a moment.', false);
+        } else {
+          appendChatbotMessage('ScreenX Assistant', `Error: ${errorMsg}`, false);
+        }
         console.error('[Chatbot] API error:', errorData);
         return;
       }
@@ -573,7 +684,13 @@ if (section) {
       removeTypingIndicator();
       
       if (data.error) {
-        appendChatbotMessage('ScreenX Assistant', `Error: ${data.error}`, false);
+        // Handle rate limit errors gracefully
+        const errorMsg = data.error;
+        if (errorMsg.includes('Rate limit') || errorMsg.includes('rate limit')) {
+          appendChatbotMessage('ScreenX Assistant', 'AI assistant temporarily unavailable. Please try again in a moment.', false);
+        } else {
+          appendChatbotMessage('ScreenX Assistant', `Error: ${errorMsg}`, false);
+        }
         return;
       }
       
@@ -636,7 +753,13 @@ if (section) {
     } catch (error) {
       removeTypingIndicator();
       console.error('Error sending message to assistant:', error);
-      appendChatbotMessage('ScreenX Assistant', 'Sorry, I encountered an error. Please try again.', false);
+
+      // Handle network errors and rate limits gracefully
+      if (error.message && (error.message.includes('rate') || error.message.includes('429'))) {
+        appendChatbotMessage('ScreenX Assistant', 'AI assistant temporarily unavailable. Please try again in a moment.', false);
+      } else {
+        appendChatbotMessage('ScreenX Assistant', 'Sorry, I encountered an error. Please try again.', false);
+      }
     }
   });
 
@@ -850,10 +973,53 @@ if (section) {
   }
 
   // Admin inbound
-  socket.on('remote-mute', () => { localStream.getAudioTracks().forEach(t => t.enabled = false); });
-  socket.on('meeting-locked', () => appendMsg('System', 'Meeting locked by host', Date.now()));
-  socket.on('meeting-unlocked', () => appendMsg('System', 'Meeting unlocked by host', Date.now()));
-  socket.on('meeting-ended', () => { alert('Meeting ended by host'); window.location.href = '/'; });
+  socket.on('remote-mute', () => { 
+    if (localStream) {
+      localStream.getAudioTracks().forEach(t => t.enabled = false);
+      // Update mic button state
+      const micBtn = document.getElementById('btnToggleMic');
+      if (micBtn) {
+        micBtn.classList.add('active');
+        const icon = micBtn.querySelector('i');
+        if (icon) icon.className = 'fas fa-microphone-slash';
+      }
+    }
+  });
+  
+  socket.on('meeting-locked', () => {
+    updateLockButtonState(true);
+    appendMsg('System', 'Meeting locked by host', Date.now());
+  });
+  
+  socket.on('meeting-unlocked', () => {
+    updateLockButtonState(false);
+    appendMsg('System', 'Meeting unlocked by host', Date.now());
+  });
+  
+  socket.on('meeting-ended', () => { 
+    alert('Meeting ended by host'); 
+    window.location.href = '/'; 
+  });
+  
+  socket.on('error-message', (message) => {
+    // Show error toast
+    const toast = document.createElement('div');
+    toast.className = 'toast-notification';
+    toast.textContent = message;
+    toast.style.cssText = 'position: fixed; top: 20px; right: 20px; background: rgba(239, 68, 68, 0.9); color: white; padding: 1rem 1.5rem; border-radius: 8px; z-index: 10000; animation: fadeInUp 0.3s ease-out;';
+    document.body.appendChild(toast);
+    setTimeout(() => {
+      toast.style.animation = 'fadeOut 0.3s ease-out';
+      setTimeout(() => toast.remove(), 300);
+    }, 3000);
+    
+    // If meeting is locked, redirect after a delay
+    if (message.includes('locked')) {
+      setTimeout(() => {
+        window.location.href = '/';
+      }, 2000);
+    }
+  });
 
   // Start (handled above before join)
 }

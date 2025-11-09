@@ -98,6 +98,8 @@ Please provide a comprehensive summary following the format specified above.`;
       return 'Error: Invalid API key. Please check your OPENAI_API_KEY in the .env file.';
     } else if (error.status === 429) {
       return 'Error: Rate limit exceeded. Please wait a moment and try again.';
+    } else if (error.status === 402 || error.code === 'insufficient_quota' || error.message?.includes('insufficient_quota')) {
+      return 'Error: OpenAI API quota exceeded. Please check your OpenAI account billing and quota limits.';
     } else if (error.status === 500) {
       return 'Error: OpenAI service is temporarily unavailable. Please try again later.';
     } else if (error.status) {
@@ -208,6 +210,8 @@ export async function aiChatbotReply(prompt, meetingId, context = {}) {
       return { reply: 'Error: Invalid API key. Please check your OPENAI_API_KEY in the .env file.', command: null };
     } else if (error.status === 429) {
       return { reply: 'Error: Rate limit exceeded. Please wait a moment and try again.', command: null };
+    } else if (error.status === 402 || error.code === 'insufficient_quota' || error.message?.includes('insufficient_quota')) {
+      return { reply: 'Error: OpenAI API quota exceeded. Please check your OpenAI account billing and quota limits.', command: null };
     } else if (error.status === 500) {
       return { reply: 'Error: OpenAI service is temporarily unavailable. Please try again later.', command: null };
     } else if (error.status) {

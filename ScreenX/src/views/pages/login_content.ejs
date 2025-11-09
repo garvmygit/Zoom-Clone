@@ -1,14 +1,337 @@
-<section class="container mx-auto px-4 py-16 max-w-md">
-  <h2 class="text-2xl font-semibold mb-6">Login</h2>
-  <form action="/auth/login" method="post" class="space-y-4">
-    <input type="email" name="email" placeholder="Email" class="w-full p-3 bg-gray-800 rounded" required />
-    <input type="password" name="password" placeholder="Password" class="w-full p-3 bg-gray-800 rounded" required />
-    <button class="w-full p-3 bg-indigo-600 rounded hover:bg-indigo-500">Login</button>
-  </form>
-  <p class="mt-3 text-sm">No account? <a class="text-indigo-400" href="/auth/signup">Sign up</a></p>
-</section>
+<div class="auth-container">
+  <div class="auth-background">
+    <div class="auth-gradient"></div>
+  </div>
+  
+  <div class="auth-card">
+    <div class="auth-header">
+      <div class="auth-logo">
+        <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect width="48" height="48" rx="12" fill="url(#gradient)"/>
+          <path d="M24 12L32 20H28V28H20V20H16L24 12Z" fill="white"/>
+          <path d="M12 32L20 24V28H28V24L36 32L28 40H20L12 32Z" fill="white" opacity="0.8"/>
+          <defs>
+            <linearGradient id="gradient" x1="0" y1="0" x2="48" y2="48" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#6366f1"/>
+              <stop offset="1" stop-color="#8b5cf6"/>
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+      <h1 class="auth-title">Welcome to ScreenX</h1>
+      <p class="auth-subtitle">Sign in to continue to your meetings</p>
+    </div>
 
+    <% if (typeof error !== 'undefined' && error) { %>
+      <div class="auth-alert auth-alert-error">
+        <svg class="auth-alert-icon" width="20" height="20" viewBox="0 0 20 20" fill="none">
+          <path d="M10 0C4.48 0 0 4.48 0 10s4.48 10 10 10 10-4.48 10-10S15.52 0 10 0zm1 15H9v-2h2v2zm0-4H9V5h2v6z" fill="currentColor"/>
+        </svg>
+        <span><%= error %></span>
+      </div>
+    <% } %>
 
+    <form action="/auth/login" method="post" class="auth-form">
+      <div class="auth-input-group">
+        <label for="email" class="auth-label">
+          <svg class="auth-input-icon" width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <path d="M2.5 6.66667L10 11.6667L17.5 6.66667M2.5 13.3333H17.5V6.66667H2.5V13.3333Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Email address
+        </label>
+        <input 
+          type="email" 
+          id="email"
+          name="email" 
+          class="auth-input" 
+          placeholder="Enter your email"
+          value="<%= typeof email !== 'undefined' ? email : '' %>"
+          required 
+          autocomplete="email"
+        />
+      </div>
 
+      <div class="auth-input-group">
+        <label for="password" class="auth-label">
+          <svg class="auth-input-icon" width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <path d="M15 9.16667V5.83333C15 3.16667 12.8333 1 10.1667 1C7.5 1 5.33333 3.16667 5.33333 5.83333V9.16667M10.1667 14.1667V16.3333M4.16667 19H16.1667C17.2712 19 18.1667 18.1046 18.1667 17V11.3333C18.1667 10.2288 17.2712 9.33333 16.1667 9.33333H4.16667C3.0621 9.33333 2.16667 10.2288 2.16667 11.3333V17C2.16667 18.1046 3.0621 19 4.16667 19Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Password
+        </label>
+        <input 
+          type="password" 
+          id="password"
+          name="password" 
+          class="auth-input" 
+          placeholder="Enter your password"
+          required 
+          autocomplete="current-password"
+        />
+      </div>
 
+      <button type="submit" class="auth-button auth-button-primary">
+        <span>Sign In</span>
+        <svg class="auth-button-icon" width="20" height="20" viewBox="0 0 20 20" fill="none">
+          <path d="M7.5 15L12.5 10L7.5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </form>
 
+    <div class="auth-footer">
+      <p class="auth-footer-text">
+        Don't have an account? 
+        <a href="/auth/signup" class="auth-link">Create one</a>
+      </p>
+    </div>
+  </div>
+</div>
+
+<% if (typeof redirectToRegister !== 'undefined' && redirectToRegister) { %>
+  <script>
+    setTimeout(() => {
+      window.location.href = '/auth/register';
+    }, 1500);
+  </script>
+<% } %>
+
+<style>
+.auth-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  padding: 2rem;
+  overflow: hidden;
+}
+
+.auth-background {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, #0f0f0f 0%, #1a1a2e 50%, #0f0f0f 100%);
+  z-index: 0;
+}
+
+.auth-gradient {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 20% 50%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
+              radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.15) 0%, transparent 50%);
+  animation: gradientShift 15s ease infinite;
+}
+
+@keyframes gradientShift {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.8; }
+}
+
+.auth-card {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 420px;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 24px;
+  padding: 3rem 2.5rem;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5),
+              0 0 0 1px rgba(255, 255, 255, 0.05) inset;
+  animation: fadeInUp 0.6s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.auth-header {
+  text-align: center;
+  margin-bottom: 2.5rem;
+}
+
+.auth-logo {
+  display: inline-flex;
+  margin-bottom: 1.5rem;
+  animation: logoFloat 3s ease-in-out infinite;
+}
+
+@keyframes logoFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.auth-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0 0 0.5rem 0;
+  letter-spacing: -0.02em;
+}
+
+.auth-subtitle {
+  font-size: 0.9375rem;
+  color: rgba(255, 255, 255, 0.6);
+  margin: 0;
+}
+
+.auth-alert {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  border-radius: 12px;
+  margin-bottom: 1.5rem;
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.auth-alert-error {
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #fca5a5;
+}
+
+.auth-alert-icon {
+  flex-shrink: 0;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.auth-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.auth-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 0.25rem;
+}
+
+.auth-input-icon {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.auth-input {
+  width: 100%;
+  padding: 0.875rem 1rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  color: #ffffff;
+  font-size: 0.9375rem;
+  transition: all 0.3s ease;
+  outline: none;
+}
+
+.auth-input::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.auth-input:focus {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(99, 102, 241, 0.5);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.auth-button {
+  width: 100%;
+  padding: 0.875rem 1.5rem;
+  border: none;
+  border-radius: 12px;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: all 0.3s ease;
+  outline: none;
+  margin-top: 0.5rem;
+}
+
+.auth-button-primary {
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  color: #ffffff;
+  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4);
+}
+
+.auth-button-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5);
+}
+
+.auth-button-primary:active {
+  transform: translateY(0);
+}
+
+.auth-button-icon {
+  transition: transform 0.3s ease;
+}
+
+.auth-button-primary:hover .auth-button-icon {
+  transform: translateX(4px);
+}
+
+.auth-footer {
+  margin-top: 2rem;
+  text-align: center;
+}
+
+.auth-footer-text {
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.6);
+  margin: 0;
+}
+
+.auth-link {
+  color: #818cf8;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.auth-link:hover {
+  color: #a5b4fc;
+  text-decoration: underline;
+}
+
+@media (max-width: 640px) {
+  .auth-card {
+    padding: 2rem 1.5rem;
+    border-radius: 20px;
+  }
+  
+  .auth-title {
+    font-size: 1.75rem;
+  }
+}
+</style>
