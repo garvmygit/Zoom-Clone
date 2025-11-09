@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <div class="join-container">
   <div class="join-background">
     <div class="join-gradient"></div>
@@ -41,16 +42,40 @@
           Your Name
           <span class="join-required">*</span>
         </label>
+=======
+<section class="container mx-auto px-4 py-16 max-w-lg page-enter">
+  <div class="glass rounded-2xl p-8">
+    <h2 class="text-3xl font-semibold mb-2 text-center">Join a Meeting</h2>
+    <p class="text-gray-400 text-center mb-8">Enter the meeting ID and password to join</p>
+    
+    <% if (typeof error !== 'undefined' && error) { %>
+      <div class="mb-6 p-4 bg-red-900/40 border border-red-700 rounded-lg">
+        <div class="flex items-center gap-2">
+          <i class="fas fa-exclamation-circle text-red-400"></i>
+          <p class="text-red-300"><%= error %></p>
+        </div>
+      </div>
+    <% } %>
+    
+    <form id="joinForm" class="space-y-4">
+      <div>
+        <label for="userName" class="block text-sm font-medium mb-2">Your Name <span class="text-red-400">*</span></label>
+>>>>>>> 335668e3bce26c04c881c51118418269b428e7b6
         <input 
           id="userName" 
           type="text" 
           placeholder="Enter your display name" 
+<<<<<<< HEAD
           class="join-input"
+=======
+          class="w-full p-3 bg-gray-800/50 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent" 
+>>>>>>> 335668e3bce26c04c881c51118418269b428e7b6
           required 
           autocomplete="name"
           maxlength="50"
         />
       </div>
+<<<<<<< HEAD
 
       <div class="join-input-group">
         <label for="mid" class="join-label">
@@ -60,16 +85,25 @@
           </svg>
           Meeting ID
         </label>
+=======
+      <div>
+        <label for="mid" class="block text-sm font-medium mb-2">Meeting ID</label>
+>>>>>>> 335668e3bce26c04c881c51118418269b428e7b6
         <input 
           id="mid" 
           type="text" 
           placeholder="Enter meeting ID" 
+<<<<<<< HEAD
           class="join-input"
+=======
+          class="w-full p-3 bg-gray-800/50 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent" 
+>>>>>>> 335668e3bce26c04c881c51118418269b428e7b6
           required 
           autocomplete="off"
           value="<%= typeof meetingId !== 'undefined' && meetingId ? meetingId : '' %>"
         />
       </div>
+<<<<<<< HEAD
 
       <div class="join-input-group">
         <label for="mpw" class="join-label">
@@ -79,15 +113,24 @@
           Password
           <span class="join-optional">(optional)</span>
         </label>
+=======
+      <div>
+        <label for="mpw" class="block text-sm font-medium mb-2">Password <span class="text-gray-500 text-xs">(optional)</span></label>
+>>>>>>> 335668e3bce26c04c881c51118418269b428e7b6
         <input 
           id="mpw" 
           type="text" 
           placeholder="Enter password if required" 
+<<<<<<< HEAD
           class="join-input"
+=======
+          class="w-full p-3 bg-gray-800/50 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent" 
+>>>>>>> 335668e3bce26c04c881c51118418269b428e7b6
           autocomplete="off"
           value="<%= typeof password !== 'undefined' && password ? password : '' %>"
         />
       </div>
+<<<<<<< HEAD
 
       <button type="submit" class="join-button join-button-primary">
         <svg class="join-button-icon" width="20" height="20" viewBox="0 0 20 20" fill="none">
@@ -110,6 +153,21 @@
     </div>
   </div>
 </div>
+=======
+      <button type="submit" class="btn btn-primary w-full">
+        <i class="fas fa-sign-in-alt mr-2"></i>Join Meeting
+      </button>
+    </form>
+    
+    <div class="mt-6 text-center">
+      <p class="text-sm text-gray-400">Don't have a meeting ID?</p>
+      <a href="/" class="text-indigo-400 hover:text-indigo-300 text-sm mt-2 inline-block">
+        <i class="fas fa-plus mr-1"></i>Create a new meeting
+      </a>
+    </div>
+  </div>
+</section>
+>>>>>>> 335668e3bce26c04c881c51118418269b428e7b6
 
 <script>
 document.getElementById('joinForm')?.addEventListener('submit', (e) => {
@@ -119,6 +177,7 @@ document.getElementById('joinForm')?.addEventListener('submit', (e) => {
   const p = document.getElementById('mpw').value.trim();
   
   if (!name) {
+<<<<<<< HEAD
     const alertEl = document.createElement('div');
     alertEl.className = 'join-alert join-alert-error';
     alertEl.innerHTML = `
@@ -130,10 +189,14 @@ document.getElementById('joinForm')?.addEventListener('submit', (e) => {
     const form = document.getElementById('joinForm');
     form.insertBefore(alertEl, form.firstChild);
     setTimeout(() => alertEl.remove(), 5000);
+=======
+    alert('Please enter your name');
+>>>>>>> 335668e3bce26c04c881c51118418269b428e7b6
     return;
   }
   
   if (!id) {
+<<<<<<< HEAD
     const alertEl = document.createElement('div');
     alertEl.className = 'join-alert join-alert-error';
     alertEl.innerHTML = `
@@ -145,6 +208,9 @@ document.getElementById('joinForm')?.addEventListener('submit', (e) => {
     const form = document.getElementById('joinForm');
     form.insertBefore(alertEl, form.firstChild);
     setTimeout(() => alertEl.remove(), 5000);
+=======
+    alert('Please enter a meeting ID');
+>>>>>>> 335668e3bce26c04c881c51118418269b428e7b6
     return;
   }
   
@@ -153,6 +219,7 @@ document.getElementById('joinForm')?.addEventListener('submit', (e) => {
 });
 </script>
 
+<<<<<<< HEAD
 <style>
 .join-container {
   min-height: 100vh;
@@ -429,3 +496,10 @@ document.getElementById('joinForm')?.addEventListener('submit', (e) => {
   }
 }
 </style>
+=======
+
+
+
+
+
+>>>>>>> 335668e3bce26c04c881c51118418269b428e7b6

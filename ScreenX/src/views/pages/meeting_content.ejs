@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <section class="w-full h-screen flex flex-col meeting-container" data-meeting-id="<%= meetingId %>" data-meeting-pass="<%= meetingPassword || '' %>" data-is-host="<%= isHost %>" data-display-name="<%= typeof displayName !== 'undefined' ? displayName : '' %>">
   <!-- Meeting Header Bar -->
   <div class="meeting-header">
@@ -52,10 +53,35 @@
     <div class="chat-widget-body">
       <!-- Regular Chat Panel -->
       <div id="chatPanel" class="chat-panel-content">
+=======
+<section class="w-full h-screen flex flex-col" data-meeting-id="<%= meetingId %>" data-meeting-pass="<%= meetingPassword || '' %>" data-is-host="<%= isHost %>" data-display-name="<%= typeof displayName !== 'undefined' ? displayName : '' %>">
+  <div class="flex-1 grid grid-cols-1 lg:grid-cols-4 gap-0 overflow-hidden">
+    <div class="col-span-1 lg:col-span-3 relative">
+      <div id="video-grid" class="h-full p-4 overflow-auto"></div>
+    </div>
+    <aside id="chatSidebar" class="col-span-1 chat-panel flex flex-col">
+      <div class="tab-container">
+        <div class="flex gap-2 flex-1">
+          <button id="tabChat" class="tab tab-active">
+            <i class="fas fa-comments mr-2"></i>Chat
+          </button>
+          <button id="tabAssistant" class="tab tab-inactive">
+            <i class="fas fa-robot mr-2"></i>Assistant
+          </button>
+        </div>
+        <button id="toggleChat" class="toolbar-btn" data-tooltip="Toggle Chat" style="width: 36px; height: 36px; font-size: 0.875rem;">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      
+      <!-- Regular Chat Panel -->
+      <div id="chatPanel" class="flex flex-col flex-1">
+>>>>>>> 335668e3bce26c04c881c51118418269b428e7b6
         <div id="chatMessages" class="chat-messages"></div>
         <div class="chat-input-container">
           <form id="chatForm" class="flex gap-2">
             <input id="chatInput" class="chat-input flex-1" placeholder="Type a message..." />
+<<<<<<< HEAD
             <button type="submit" class="chat-send-btn" data-tooltip="Send">
               <i class="fas fa-paper-plane"></i>
             </button>
@@ -79,14 +105,43 @@
                 </div>
                 <div id="summaryOutput" class="text-sm text-gray-300 whitespace-pre-wrap max-h-64 overflow-y-auto"></div>
               </div>
+=======
+            <button type="submit" class="toolbar-btn" data-tooltip="Send" style="width: 48px; height: 48px;">
+              <i class="fas fa-paper-plane"></i>
+            </button>
+          </form>
+        <div class="p-4 border-t border-gray-800 space-y-2 glass">
+          <button id="btnSummary" class="btn btn-indigo w-full">
+            <i class="fas fa-brain mr-2"></i>Generate AI Summary
+          </button>
+          <div id="summaryContainer" class="hidden mt-2">
+            <div class="bg-gray-900 rounded p-3 border border-gray-700">
+              <div class="flex items-center justify-between mb-2">
+                <h4 class="font-semibold text-white text-sm">📋 Meeting Summary</h4>
+                <div class="flex gap-1">
+                  <button id="btnDownloadSummary" class="px-2 py-1 text-xs bg-gray-800 rounded hover:bg-gray-700 text-gray-300" title="Download Summary">
+                    💾 Download
+                  </button>
+                  <button id="btnCloseSummary" class="px-2 py-1 text-xs bg-gray-800 rounded hover:bg-gray-700 text-gray-300" title="Close">
+                    ✕
+                  </button>
+                </div>
+              </div>
+              <div id="summaryOutput" class="text-sm text-gray-300 whitespace-pre-wrap max-h-64 overflow-y-auto"></div>
+>>>>>>> 335668e3bce26c04c881c51118418269b428e7b6
             </div>
           </div>
         </div>
       </div>
 
       <!-- AI Chatbot Assistant Panel -->
+<<<<<<< HEAD
       <div id="chatbotPanel" class="chat-panel-content hidden">
         <div class="p-3 border-b border-gray-800 bg-gradient-to-r from-indigo-900 to-purple-900 flex-shrink-0">
+=======
+      <div id="chatbotPanel" class="hidden flex flex-col h-[70vh]">
+        <div class="p-3 border-b border-gray-800 bg-gradient-to-r from-indigo-900 to-purple-900">
+>>>>>>> 335668e3bce26c04c881c51118418269b428e7b6
           <div class="flex items-center gap-2">
             <span class="text-2xl">🤖</span>
             <div>
@@ -95,8 +150,13 @@
             </div>
           </div>
         </div>
+<<<<<<< HEAD
         <div id="chatbotMessages" class="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-900 min-h-0"></div>
         <div class="p-3 border-t border-gray-800 bg-gray-900 flex-shrink-0">
+=======
+        <div id="chatbotMessages" class="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-900"></div>
+        <div class="p-3 border-t border-gray-800 bg-gray-900">
+>>>>>>> 335668e3bce26c04c881c51118418269b428e7b6
           <form id="chatbotForm" class="flex gap-2">
             <input 
               id="chatbotInput" 
@@ -123,8 +183,13 @@
           </div>
         </div>
       </div>
+<<<<<<< HEAD
     </div>
   </aside>
+=======
+    </aside>
+  </div>
+>>>>>>> 335668e3bce26c04c881c51118418269b428e7b6
   
   <!-- Floating Toolbar -->
   <div class="floating-toolbar">
@@ -145,7 +210,11 @@
     </button>
     <% if (isHost) { %>
       <div class="w-px h-8 bg-gray-600 mx-1"></div>
+<<<<<<< HEAD
       <button data-admin="mute-all" class="toolbar-btn" data-tooltip="Mute All">
+=======
+      <button data-admin="mute" class="toolbar-btn" data-tooltip="Mute All">
+>>>>>>> 335668e3bce26c04c881c51118418269b428e7b6
         <i class="fas fa-microphone-slash"></i>
       </button>
       <button data-admin="lock" class="toolbar-btn" data-tooltip="Lock Meeting">

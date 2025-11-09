@@ -73,14 +73,18 @@ if (section) {
     }
     const video = tile.querySelector('video');
     if (video && video.srcObject !== stream) video.srcObject = stream;
+<<<<<<< HEAD
     
     // Update grid layout after adding tile
     updateVideoGridLayout();
+=======
+>>>>>>> 335668e3bce26c04c881c51118418269b428e7b6
   }
 
   function removeVideoTile(id) {
     const tile = document.getElementById(`tile-${id}`);
     if (tile) tile.remove();
+<<<<<<< HEAD
     updateVideoGridLayout();
   }
 
@@ -106,20 +110,28 @@ if (section) {
     if (participantCountEl) {
       participantCountEl.textContent = count;
     }
+=======
+>>>>>>> 335668e3bce26c04c881c51118418269b428e7b6
   }
 
   async function initMedia() {
     try {
       localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
       addVideoTile('local', localStream, `${displayName} (You)`, isHost);
+<<<<<<< HEAD
       // Ensure initial layout is set
       updateVideoGridLayout();
+=======
+>>>>>>> 335668e3bce26c04c881c51118418269b428e7b6
     } catch (e) {
       alert('Camera/Microphone access denied or unavailable. You can still join in listen-only mode.');
       localStream = new MediaStream();
       addVideoTile('local', localStream, `${displayName} (You)`, isHost);
+<<<<<<< HEAD
       // Ensure initial layout is set even without media
       updateVideoGridLayout();
+=======
+>>>>>>> 335668e3bce26c04c881c51118418269b428e7b6
     }
   }
 
@@ -159,6 +171,7 @@ if (section) {
 
   // UI controls - Tab switching
   let currentTab = 'chat';
+<<<<<<< HEAD
   const chatWidget = document.getElementById('chatWidget');
   const toggleChatBtn = document.getElementById('toggleChatBtn');
   const chatIcon = document.getElementById('chatIcon');
@@ -180,10 +193,31 @@ if (section) {
         toggleChatBtn.classList.remove('active');
         chatIcon.className = 'fas fa-comments';
         toggleChatBtn.setAttribute('data-tooltip', 'Close Chat');
+=======
+  const chatSidebar = document.getElementById('chatSidebar');
+  const toggleChatBtn = document.getElementById('toggleChatBtn');
+  const chatIcon = document.getElementById('chatIcon');
+  const toggleChatInHeader = document.getElementById('toggleChat');
+  
+  // Chat toggle state
+  let isChatOpen = true; // Chat is open by default on desktop
+  
+  function updateChatButtonState() {
+    if (toggleChatBtn && chatIcon) {
+      if (isChatOpen) {
+        toggleChatBtn.classList.remove('active');
+        chatIcon.className = 'fas fa-comments';
+        toggleChatBtn.setAttribute('data-tooltip', 'Close Chat');
+      } else {
+        toggleChatBtn.classList.add('active');
+        chatIcon.className = 'fas fa-comment-slash';
+        toggleChatBtn.setAttribute('data-tooltip', 'Open Chat');
+>>>>>>> 335668e3bce26c04c881c51118418269b428e7b6
       }
     }
   }
   
+<<<<<<< HEAD
   function setChatWidgetState(state) {
     if (!chatWidget) return;
     
@@ -217,12 +251,49 @@ if (section) {
       // Add class to video grid when chat is visible (for potential styling)
       if (videoGrid) {
         videoGrid.classList.add('chat-visible');
+=======
+  function toggleChatSidebar() {
+    if (!chatSidebar) return;
+    
+    isChatOpen = !isChatOpen;
+    
+    // Get the parent grid container
+    const gridContainer = chatSidebar.parentElement;
+    const videoGridContainer = document.querySelector('.col-span-1.lg\\:col-span-3');
+    
+    if (isChatOpen) {
+      chatSidebar.classList.remove('hidden');
+      // Restore grid layout on desktop
+      if (window.innerWidth >= 1025 && gridContainer) {
+        gridContainer.className = 'flex-1 grid grid-cols-1 lg:grid-cols-4 gap-0 overflow-hidden';
+        if (videoGridContainer) {
+          videoGridContainer.className = 'col-span-1 lg:col-span-3 relative';
+        }
+      }
+      // Ensure the correct tab is visible
+      if (currentTab === 'chat') {
+        chatPanel.classList.remove('hidden');
+        chatbotPanel.classList.add('hidden');
+      } else {
+        chatPanel.classList.add('hidden');
+        chatbotPanel.classList.remove('hidden');
+      }
+    } else {
+      chatSidebar.classList.add('hidden');
+      // Expand video grid to full width on desktop
+      if (window.innerWidth >= 1025 && gridContainer) {
+        gridContainer.className = 'flex-1 grid grid-cols-1 gap-0 overflow-hidden';
+        if (videoGridContainer) {
+          videoGridContainer.className = 'col-span-1 relative';
+        }
+>>>>>>> 335668e3bce26c04c881c51118418269b428e7b6
       }
     }
     
     updateChatButtonState();
   }
   
+<<<<<<< HEAD
   function toggleChatWidgetVisibility() {
     if (!chatWidget) return;
     
@@ -244,6 +315,34 @@ if (section) {
       setChatWidgetState('minimized');
     }
   }
+=======
+  // Handle window resize to maintain correct layout
+  let resizeTimeout;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(() => {
+      const gridContainer = chatSidebar?.parentElement;
+      const videoGridContainer = document.querySelector('.col-span-1.lg\\:col-span-3, .col-span-1.relative');
+      
+      if (window.innerWidth >= 1025) {
+        // Desktop layout
+        if (gridContainer) {
+          if (isChatOpen) {
+            gridContainer.className = 'flex-1 grid grid-cols-1 lg:grid-cols-4 gap-0 overflow-hidden';
+            if (videoGridContainer) {
+              videoGridContainer.className = 'col-span-1 lg:col-span-3 relative';
+            }
+          } else {
+            gridContainer.className = 'flex-1 grid grid-cols-1 gap-0 overflow-hidden';
+            if (videoGridContainer) {
+              videoGridContainer.className = 'col-span-1 relative';
+            }
+          }
+        }
+      }
+    }, 100);
+  });
+>>>>>>> 335668e3bce26c04c881c51118418269b428e7b6
   
   function switchTab(tab) {
     currentTab = tab;
@@ -281,6 +380,7 @@ if (section) {
   tabChat?.addEventListener('click', () => switchTab('chat'));
   tabAssistant?.addEventListener('click', () => switchTab('assistant'));
   
+<<<<<<< HEAD
   // Toggle chat widget visibility from toolbar button (hide/show completely)
   toggleChatBtn?.addEventListener('click', (e) => {
     e.stopPropagation();
@@ -312,6 +412,15 @@ if (section) {
   
   // Initialize chat widget state (start minimized to not block video content)
   setChatWidgetState('minimized');
+=======
+  // Toggle chat sidebar from toolbar button
+  toggleChatBtn?.addEventListener('click', toggleChatSidebar);
+  
+  // Toggle chat sidebar from header close button
+  toggleChatInHeader?.addEventListener('click', toggleChatSidebar);
+  
+  // Initialize chat button state
+>>>>>>> 335668e3bce26c04c881c51118418269b428e7b6
   updateChatButtonState();
   document.getElementById('btnShare')?.addEventListener('click', async () => {
     try {
@@ -414,6 +523,7 @@ if (section) {
   });
 
   // Admin buttons
+<<<<<<< HEAD
   // Meeting timer
   let meetingStartTime = Date.now();
   let timerInterval = null;
@@ -490,6 +600,12 @@ if (section) {
       } else {
         socket.emit('admin-action', { meetingId, action });
       }
+=======
+  document.querySelectorAll('[data-admin]')?.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const action = btn.getAttribute('data-admin');
+      socket.emit('admin-action', { meetingId, action });
+>>>>>>> 335668e3bce26c04c881c51118418269b428e7b6
     });
   });
 
@@ -667,6 +783,7 @@ if (section) {
       if (!res.ok) {
         const errorData = await res.json().catch(() => ({ error: 'Unknown error' }));
         removeTypingIndicator();
+<<<<<<< HEAD
 
         // Handle rate limit errors gracefully
         const errorMsg = errorData.error || errorData.message || 'Request failed';
@@ -675,6 +792,9 @@ if (section) {
         } else {
           appendChatbotMessage('ScreenX Assistant', `Error: ${errorMsg}`, false);
         }
+=======
+        appendChatbotMessage('ScreenX Assistant', `Error: ${errorData.error || errorData.message || 'Request failed'}`, false);
+>>>>>>> 335668e3bce26c04c881c51118418269b428e7b6
         console.error('[Chatbot] API error:', errorData);
         return;
       }
@@ -684,6 +804,7 @@ if (section) {
       removeTypingIndicator();
       
       if (data.error) {
+<<<<<<< HEAD
         // Handle rate limit errors gracefully
         const errorMsg = data.error;
         if (errorMsg.includes('Rate limit') || errorMsg.includes('rate limit')) {
@@ -691,6 +812,9 @@ if (section) {
         } else {
           appendChatbotMessage('ScreenX Assistant', `Error: ${errorMsg}`, false);
         }
+=======
+        appendChatbotMessage('ScreenX Assistant', `Error: ${data.error}`, false);
+>>>>>>> 335668e3bce26c04c881c51118418269b428e7b6
         return;
       }
       
@@ -753,6 +877,7 @@ if (section) {
     } catch (error) {
       removeTypingIndicator();
       console.error('Error sending message to assistant:', error);
+<<<<<<< HEAD
 
       // Handle network errors and rate limits gracefully
       if (error.message && (error.message.includes('rate') || error.message.includes('429'))) {
@@ -760,6 +885,9 @@ if (section) {
       } else {
         appendChatbotMessage('ScreenX Assistant', 'Sorry, I encountered an error. Please try again.', false);
       }
+=======
+      appendChatbotMessage('ScreenX Assistant', 'Sorry, I encountered an error. Please try again.', false);
+>>>>>>> 335668e3bce26c04c881c51118418269b428e7b6
     }
   });
 
@@ -973,6 +1101,7 @@ if (section) {
   }
 
   // Admin inbound
+<<<<<<< HEAD
   socket.on('remote-mute', () => { 
     if (localStream) {
       localStream.getAudioTracks().forEach(t => t.enabled = false);
@@ -1020,6 +1149,12 @@ if (section) {
       }, 2000);
     }
   });
+=======
+  socket.on('remote-mute', () => { localStream.getAudioTracks().forEach(t => t.enabled = false); });
+  socket.on('meeting-locked', () => appendMsg('System', 'Meeting locked by host', Date.now()));
+  socket.on('meeting-unlocked', () => appendMsg('System', 'Meeting unlocked by host', Date.now()));
+  socket.on('meeting-ended', () => { alert('Meeting ended by host'); window.location.href = '/'; });
+>>>>>>> 335668e3bce26c04c881c51118418269b428e7b6
 
   // Start (handled above before join)
 }
