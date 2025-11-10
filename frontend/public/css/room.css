@@ -32,6 +32,7 @@ body { background: var(--bg); color: #e9eef6; font-family: Inter, Poppins, syste
 .btn { border-radius:10px; }
 
 .reaction { transition: transform 2.4s ease-out, opacity 0.5s ease-out; pointer-events: none; }
+//fixed the reactions associated problems
 
 @media (max-width: 991px) {
   .stage { min-height: 320px; }
