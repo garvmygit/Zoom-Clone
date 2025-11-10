@@ -310,7 +310,6 @@ header a:hover {
   display: grid;
   gap: 1rem;
   padding: 1rem;
-<<<<<<< HEAD
   grid-template-columns: 1fr;
   align-content: start;
   justify-items: center;
@@ -464,49 +463,6 @@ header a:hover {
   justify-content: center;
   font-size: 0.7rem;
   font-weight: 600;
-=======
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  align-content: start;
-}
-
-#video-grid:has(.video-tile:nth-child(1):last-child) {
-  grid-template-columns: 1fr;
-  max-width: 800px;
-  margin: 0 auto;
-}
-
-#video-grid:has(.video-tile:nth-child(2):last-child) {
-  grid-template-columns: repeat(2, 1fr);
-}
-
-#video-grid:has(.video-tile:nth-child(3):last-child) {
-  grid-template-columns: repeat(2, 1fr);
-}
-
-#video-grid:has(.video-tile:nth-child(4):last-child) {
-  grid-template-columns: repeat(2, 1fr);
-}
-
-@media (min-width: 1024px) {
-  #video-grid:has(.video-tile:nth-child(3):last-child) {
-    grid-template-columns: repeat(3, 1fr);
-  }
-  
-  #video-grid:has(.video-tile:nth-child(4):last-child) {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  
-  #video-grid:has(.video-tile:nth-child(5):last-child),
-  #video-grid:has(.video-tile:nth-child(6):last-child) {
-    grid-template-columns: repeat(3, 1fr);
-  }
-  
-  #video-grid:has(.video-tile:nth-child(7):last-child),
-  #video-grid:has(.video-tile:nth-child(8):last-child),
-  #video-grid:has(.video-tile:nth-child(9):last-child) {
-    grid-template-columns: repeat(3, 1fr);
-  }
->>>>>>> 335668e3bce26c04c881c51118418269b428e7b6
 }
 
 /* ============================================
@@ -591,7 +547,6 @@ header a:hover {
 }
 
 /* ============================================
-<<<<<<< HEAD
    Floating Chat Widget
    ============================================ */
 
@@ -712,29 +667,11 @@ header a:hover {
   flex: 1;
   overflow: hidden;
   min-height: 0;
-=======
-   Chat Panel
-   ============================================ */
-
-.chat-panel {
-  background: rgba(15, 15, 15, 0.95);
-  backdrop-filter: blur(20px);
-  border-left: 1px solid var(--border-color);
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.chat-panel.hidden {
-  transform: translateX(100%);
->>>>>>> 335668e3bce26c04c881c51118418269b428e7b6
 }
 
 .chat-messages {
   flex: 1;
   overflow-y: auto;
-<<<<<<< HEAD
   overflow-x: hidden;
   padding: 1rem;
   scroll-behavior: smooth;
@@ -757,10 +694,6 @@ header a:hover {
 
 .chat-messages::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.3);
-=======
-  padding: 1rem;
-  scroll-behavior: smooth;
->>>>>>> 335668e3bce26c04c881c51118418269b428e7b6
 }
 
 .chat-message {
@@ -807,12 +740,8 @@ header a:hover {
 .chat-input-container {
   padding: 1rem;
   border-top: 1px solid var(--border-color);
-<<<<<<< HEAD
   background: rgba(15, 15, 15, 0.98);
   flex-shrink: 0;
-=======
-  background: rgba(15, 15, 15, 0.9);
->>>>>>> 335668e3bce26c04c881c51118418269b428e7b6
 }
 
 .chat-input {
@@ -833,7 +762,6 @@ header a:hover {
   background: rgba(255, 255, 255, 0.15);
 }
 
-<<<<<<< HEAD
 .chat-send-btn {
   width: 40px;
   height: 40px;
@@ -859,13 +787,10 @@ header a:hover {
   transform: scale(0.95);
 }
 
-=======
->>>>>>> 335668e3bce26c04c881c51118418269b428e7b6
 /* ============================================
    AI Chatbot Panel
    ============================================ */
 
-<<<<<<< HEAD
 /* Chatbot panel styles are now part of chat-panel-content */
 #chatbotMessages {
   min-height: 0;
@@ -886,14 +811,6 @@ header a:hover {
 
 #chatbotMessages::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.3);
-=======
-.chatbot-panel {
-  background: rgba(15, 15, 15, 0.95);
-  backdrop-filter: blur(20px);
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
->>>>>>> 335668e3bce26c04c881c51118418269b428e7b6
 }
 
 .chatbot-header {
@@ -984,17 +901,7 @@ header a:hover {
    Tabs & Navigation
    ============================================ */
 
-<<<<<<< HEAD
 /* Tab styles are now part of chat-widget-header, keeping existing tab styles */
-=======
-.tab-container {
-  display: flex;
-  gap: 0.5rem;
-  padding: 1rem;
-  border-bottom: 1px solid var(--border-color);
-  background: rgba(15, 15, 15, 0.9);
-}
->>>>>>> 335668e3bce26c04c881c51118418269b428e7b6
 
 .tab {
   padding: 0.5rem 1rem;
@@ -1145,7 +1052,6 @@ header a:hover {
    Responsive Design
    ============================================ */
 
-<<<<<<< HEAD
 /* Chat Widget Responsive Styles */
 @media (max-width: 768px) {
   .chat-widget {
@@ -1155,63 +1061,6 @@ header a:hover {
     max-height: calc(100vh - 100px);
     border-radius: 12px;
   }
-
-=======
-/* Chat Panel Toggle Animation */
-.chat-panel {
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
-}
-
-/* Desktop: Chat panel is part of grid, just hide/show */
-@media (min-width: 1025px) {
-  .chat-panel {
-    transition: opacity 0.3s ease, visibility 0.3s ease;
-  }
-  
-  .chat-panel.hidden {
-    display: none !important;
-    visibility: hidden;
-    opacity: 0;
-  }
-  
-  .chat-panel:not(.hidden) {
-    display: flex !important;
-    visibility: visible;
-    opacity: 1;
-  }
-}
-
-/* Tablet/Mobile: Chat panel slides in from right */
-@media (max-width: 1024px) {
-  .chat-panel {
-    position: fixed;
-    top: 0;
-    right: 0;
-    width: 100%;
-    max-width: 400px;
-    height: 100vh;
-    z-index: 2000;
-    transform: translateX(0);
-    opacity: 1;
-    box-shadow: -4px 0 20px rgba(0, 0, 0, 0.5);
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
-  }
-
-  .chat-panel.hidden {
-    transform: translateX(100%);
-    opacity: 0;
-    pointer-events: none;
-  }
-  
-  .chat-panel:not(.hidden) {
-    transform: translateX(0);
-    opacity: 1;
-    pointer-events: auto;
-  }
-}
-
-@media (max-width: 768px) {
->>>>>>> 335668e3bce26c04c881c51118418269b428e7b6
   .floating-toolbar {
     bottom: 1rem;
     padding: 0.75rem 1rem;
@@ -1245,14 +1094,6 @@ header a:hover {
     width: 100%;
   }
 
-<<<<<<< HEAD
-=======
-  .chat-panel {
-    width: 100%;
-    max-width: 100%;
-  }
-
->>>>>>> 335668e3bce26c04c881c51118418269b428e7b6
   #video-grid {
     grid-template-columns: 1fr;
     padding: 0.5rem;
@@ -1263,7 +1104,6 @@ header a:hover {
   }
 }
 
-<<<<<<< HEAD
 @media (max-width: 480px) {
   .chat-widget {
     width: calc(100vw - 10px);
@@ -1291,8 +1131,6 @@ header a:hover {
   }
 }
 
-=======
->>>>>>> 335668e3bce26c04c881c51118418269b428e7b6
 @media (min-width: 769px) {
   .mobile-only {
     display: none;
