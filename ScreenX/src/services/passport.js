@@ -4,6 +4,7 @@ import User from '../schema/User.js';
 export function configurePassport(passport) {
   passport.use(new LocalStrategy.Strategy({ usernameField: 'email' }, async (email, password, done) => {
     try {
+<<<<<<< HEAD
       // Validate inputs before database lookup
       if (!email || typeof email !== 'string' || email.trim() === '') {
         return done(null, false, { message: 'Email is required' });
@@ -32,6 +33,14 @@ export function configurePassport(passport) {
       return done(null, user);
     } catch (e) {
       console.error('[Passport] Authentication error:', e);
+=======
+      const user = await User.findOne({ email });
+      if (!user) return done(null, false);
+      const ok = await user.validatePassword(password);
+      if (!ok) return done(null, false);
+      return done(null, user);
+    } catch (e) {
+>>>>>>> 335668e3bce26c04c881c51118418269b428e7b6
       return done(e);
     }
   }));
