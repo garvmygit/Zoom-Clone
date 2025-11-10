@@ -8,7 +8,6 @@ const UserSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 UserSchema.methods.setPassword = async function setPassword(password) {
-<<<<<<< HEAD
   // Validate password before hashing
   if (!password || typeof password !== 'string' || password.trim() === '') {
     throw new Error('Password is required and must be a non-empty string');
@@ -45,14 +44,6 @@ UserSchema.methods.validatePassword = async function validatePassword(password) 
     console.error('[User] Error comparing password:', error);
     return false;
   }
-=======
-  const salt = await bcrypt.genSalt(10);
-  this.passwordHash = await bcrypt.hash(password, salt);
-};
-
-UserSchema.methods.validatePassword = async function validatePassword(password) {
-  return bcrypt.compare(password, this.passwordHash);
->>>>>>> 335668e3bce26c04c881c51118418269b428e7b6
 };
 
 const User = mongoose.model('User', UserSchema);
