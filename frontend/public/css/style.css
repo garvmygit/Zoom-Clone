@@ -17,7 +17,7 @@ body {
   background: black;
   box-shadow: 0 0 15px rgba(0,0,0,0.5);
 }
-
+//Added new style to main page, previous was dull
 .form-control-dark {
   background: #141618;
   color: #e9eef6;
