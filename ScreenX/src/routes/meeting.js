@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import Meeting from '../schema/Meeting.js';
+import dbCacheService from '../cache/dbCacheService.js';
 
 const router = Router();
 
@@ -45,7 +46,8 @@ router.get('/meet/:meetingId', async (req, res) => {
       });
     }
     
-    const meeting = await Meeting.findOne({ meetingId: meetingId.trim() });
+    // Use cached room data
+    const meeting = await dbCacheService.getRoom(meetingId.trim());
     
     if (!meeting) {
       return res.status(404).render('404', { 

@@ -20,6 +20,39 @@
   <script src="/socket.io/socket.io.js"></script>
   <script>window.SCREENX_USER = <%- JSON.stringify(user || null) %>;</script>
   <script src="/public/js/landing.js"></script>
+  
+  <!-- Service Worker Registration -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/public/service-worker.js')
+          .then((registration) => {
+            console.log('[Service Worker] Registered successfully:', registration.scope);
+            
+            // Check for updates
+            registration.addEventListener('updatefound', () => {
+              const newWorker = registration.installing;
+              newWorker.addEventListener('statechange', () => {
+                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                  // New service worker available, prompt user to refresh
+                  console.log('[Service Worker] New version available');
+                }
+              });
+            });
+          })
+          .catch((error) => {
+            console.error('[Service Worker] Registration failed:', error);
+          });
+
+        // Listen for service worker messages
+        navigator.serviceWorker.addEventListener('message', (event) => {
+          if (event.data && event.data.type === 'CACHE_DELETED') {
+            console.log('[Service Worker] Cache deleted:', event.data.cacheName);
+          }
+        });
+      });
+    }
+  </script>
 </body>
 </html>
 

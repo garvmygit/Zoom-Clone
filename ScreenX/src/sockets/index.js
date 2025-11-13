@@ -1,9 +1,11 @@
 import Meeting from '../schema/Meeting.js';
+import dbCacheService from '../cache/dbCacheService.js';
 
 export function registerSocketHandlers(io) {
   io.on('connection', (socket) => {
     socket.on('join-room', async ({ meetingId, displayName, isHost }) => {
-      const meeting = await Meeting.findOne({ meetingId });
+      // Use cached room data
+      const meeting = await dbCacheService.getRoom(meetingId);
       if (!meeting) return socket.emit('error-message', 'Meeting not found');
       if (meeting.locked && !isHost) return socket.emit('error-message', 'Meeting is locked');
 
@@ -69,11 +71,11 @@ export function registerSocketHandlers(io) {
           target?.emit('removed-from-meeting');
           break;
         case 'lock': {
-          await Meeting.updateOne({ meetingId }, { $set: { locked: true } });
+          await dbCacheService.updateRoom(meetingId, { locked: true });
           io.to(meetingId).emit('meeting-locked');
           break; }
         case 'unlock': {
-          await Meeting.updateOne({ meetingId }, { $set: { locked: false } });
+          await dbCacheService.updateRoom(meetingId, { locked: false });
           io.to(meetingId).emit('meeting-unlocked');
           break; }
         case 'end':

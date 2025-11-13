@@ -2,13 +2,16 @@ import { Router } from 'express';
 import Chat from '../schema/Chat.js';
 import Meeting from '../schema/Meeting.js';
 import { aiSummarizeTranscript, aiChatbotReply } from '../services/ai.js';
+import dbCacheService from '../cache/dbCacheService.js';
 
 const router = Router();
 
 router.post('/chat', async (req, res) => {
   const { meetingId, sender, message } = req.body;
   if (!meetingId || !message) return res.status(400).json({ error: 'Missing fields' });
-  await Chat.create({ meetingId, sender, message });
+  
+  // Use write-through cache service
+  await dbCacheService.addChatMessage(meetingId, sender, message);
   res.json({ ok: true });
 });
 
@@ -23,14 +26,15 @@ router.post('/summary', async (req, res) => {
     
     console.log('[API] Summary request for meeting:', meetingId);
     
-    const meeting = await Meeting.findOne({ meetingId });
+    // Use cached room data
+    const meeting = await dbCacheService.getRoom(meetingId);
     if (!meeting) {
       console.error('[API] Meeting not found:', meetingId);
       return res.status(404).json({ error: 'Meeting not found', success: false });
     }
     
-    // Get all chats for the meeting
-    const chats = await Chat.find({ meetingId }).sort({ createdAt: 1 });
+    // Get cached chat history (limited to 50)
+    const chats = await dbCacheService.getChatHistory(meetingId, 50);
     console.log('[API] Found', chats.length, 'chat messages for meeting:', meetingId);
     
     if (chats.length === 0) {
@@ -65,19 +69,14 @@ router.post('/summary', async (req, res) => {
       });
     }
     
-    // Save summary to meeting document
+    // Save summary to meeting document (write-through cache)
     try {
-      await Meeting.updateOne(
-        { meetingId },
-        { 
-          $set: { 
-            summary,
-            summaryGeneratedAt: new Date(),
-            participants: participants.length > 0 ? participants : meeting.participants || []
-          }
-        }
-      );
-      console.log('[API] Summary saved to database for meeting:', meetingId);
+      await dbCacheService.updateRoom(meetingId, {
+        summary,
+        summaryGeneratedAt: new Date(),
+        participants: participants.length > 0 ? participants : meeting.participants || []
+      });
+      console.log('[API] Summary saved to database and cache for meeting:', meetingId);
     } catch (dbError) {
       console.error('[API] Error saving summary to database:', dbError);
       // Continue even if save fails - we still return the summary
@@ -109,7 +108,8 @@ router.get('/summary/:meetingId', async (req, res) => {
       return res.status(400).json({ error: 'Missing meetingId', success: false });
     }
     
-    const meeting = await Meeting.findOne({ meetingId });
+    // Use cached room data
+    const meeting = await dbCacheService.getRoom(meetingId);
     if (!meeting) {
       return res.status(404).json({ error: 'Meeting not found', success: false });
     }
@@ -150,16 +150,13 @@ router.post('/assistant', async (req, res) => {
       return res.status(400).json({ error: 'Missing prompt', reply: 'Please provide a message.' });
     }
     
-    // Get recent chat history for context
+    // Get recent chat history for context (from cache)
     let chatHistory = '';
     if (meetingId) {
       try {
-        const recentChats = await Chat.find({ meetingId })
-          .sort({ createdAt: -1 })
-          .limit(10)
-          .lean();
+        const recentChats = await dbCacheService.getChatHistory(meetingId, 10);
         chatHistory = recentChats
-          .reverse()
+          .slice(-10) // Get last 10
           .map((c) => `${c.sender || 'User'}: ${c.message}`)
           .join('\n');
         console.log('[API] Chat history length:', chatHistory.length);
@@ -222,6 +219,33 @@ router.post('/assistant', async (req, res) => {
       message: error.message,
       reply: 'Sorry, I encountered an error. Please try again later.' 
     });
+  }
+});
+
+// GET endpoint for chat history (cached)
+router.get('/chat/:roomId', async (req, res) => {
+  try {
+    const { roomId } = req.params;
+    const messages = await dbCacheService.getChatHistory(roomId, 50);
+    res.json({ messages, cached: true });
+  } catch (error) {
+    console.error('[API] Error fetching chat history:', error);
+    res.status(500).json({ error: 'Failed to fetch chat history' });
+  }
+});
+
+// GET endpoint for room metadata (cached)
+router.get('/rooms/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const room = await dbCacheService.getRoom(id);
+    if (!room) {
+      return res.status(404).json({ error: 'Room not found' });
+    }
+    res.json(room);
+  } catch (error) {
+    console.error('[API] Error fetching room:', error);
+    res.status(500).json({ error: 'Failed to fetch room data' });
   }
 });
 

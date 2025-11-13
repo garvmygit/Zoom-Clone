@@ -1,3 +1,9 @@
+// Import cache manager (will be available globally if loaded as module)
+let cacheManager = null;
+if (typeof window !== 'undefined' && window.cacheManager) {
+  cacheManager = window.cacheManager;
+}
+
 function setupMeeting() {
 const socket = io();
 const section = document.querySelector('section[data-meeting-id]');
@@ -10,6 +16,12 @@ if (section) {
   // Store participant names mapping: socketId -> { name, isHost }
   const participantNames = new Map();
   participantNames.set('local', { name: displayName, isHost });
+
+  // Initialize cache manager reference
+  if (!cacheManager && typeof CacheManager !== 'undefined') {
+    cacheManager = new CacheManager();
+    window.cacheManager = cacheManager;
+  }
 
   const localVideo = document.createElement('video');
   localVideo.muted = true;
@@ -571,6 +583,48 @@ if (section) {
     }
   });
 
+  // Load cached chat messages on meeting join
+  async function loadCachedChat() {
+    if (!cacheManager) return;
+    
+    try {
+      const cachedMessages = cacheManager.getChatMessages(meetingId);
+      if (cachedMessages && cachedMessages.length > 0) {
+        console.log('[Meeting] Loading', cachedMessages.length, 'cached chat messages');
+        cachedMessages.forEach(msg => {
+          appendMsg(msg.sender || 'User', msg.message || '', msg.createdAt || msg.ts || Date.now());
+        });
+      }
+      
+      // Sync with backend to get latest
+      const syncResult = await cacheManager.syncWithBackend(meetingId);
+      if (syncResult && syncResult.chatData && syncResult.chatData.messages) {
+        // Clear and reload with latest messages
+        chatMessages.innerHTML = '';
+        syncResult.chatData.messages.forEach(msg => {
+          appendMsg(msg.sender || 'User', msg.message || '', msg.createdAt || Date.now());
+        });
+      }
+    } catch (error) {
+      console.error('[Meeting] Error loading cached chat:', error);
+    }
+  }
+
+  // Load cached user preferences
+  function loadCachedPreferences() {
+    if (!cacheManager) return;
+    
+    try {
+      const prefs = cacheManager.getUserPreferences();
+      if (prefs.username && !displayNameFromAttr) {
+        // Could use cached username if needed
+      }
+      // Apply mic/camera preferences if needed
+    } catch (error) {
+      console.error('[Meeting] Error loading preferences:', error);
+    }
+  }
+
   // Chat
   chatForm?.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -580,10 +634,34 @@ if (section) {
     appendMsg(displayName, message, ts);
     chatInput.value = '';
     socket.emit('chat-message', { meetingId, sender: displayName, message, ts });
-    try { await fetch('/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ meetingId, sender: displayName, message }) }); } catch {}
+    
+    // Save to cache immediately
+    if (cacheManager) {
+      const currentMessages = cacheManager.getChatMessages(meetingId);
+      const newMessage = { sender: displayName, message, ts, createdAt: new Date(ts) };
+      cacheManager.saveChatMessages(meetingId, [...currentMessages, newMessage]);
+    }
+    
+    try { 
+      await fetch('/api/chat', { 
+        method: 'POST', 
+        headers: { 'Content-Type': 'application/json' }, 
+        body: JSON.stringify({ meetingId, sender: displayName, message }) 
+      }); 
+    } catch {}
   });
 
-  socket.on('chat-message', ({ sender, message, ts }) => appendMsg(sender, message, ts));
+  socket.on('chat-message', ({ sender, message, ts }) => {
+    appendMsg(sender, message, ts);
+    
+    // Update cache when new message arrives
+    if (cacheManager) {
+      const currentMessages = cacheManager.getChatMessages(meetingId);
+      const newMessage = { sender, message, ts, createdAt: new Date(ts) };
+      cacheManager.saveChatMessages(meetingId, [...currentMessages, newMessage]);
+    }
+  });
+  
   function appendMsg(sender, message, ts) {
     const isOwn = sender === displayName;
     const el = document.createElement('div');
@@ -891,6 +969,10 @@ if (section) {
     return str.replace(/[&<>"]+/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[s]));
   }
 
+  // Load cached data on meeting join
+  loadCachedPreferences();
+  loadCachedChat();
+
   // Signaling
   // Delay joining until media is initialized
   (async () => {
@@ -901,6 +983,11 @@ if (section) {
   socket.on('peers', async (peerInfo) => {
     // peerInfo is now an array of { id, name, isHost } objects
     if (Array.isArray(peerInfo)) {
+      // Cache participants list
+      if (cacheManager) {
+        cacheManager.saveParticipants(meetingId, peerInfo);
+      }
+      
       for (const peer of peerInfo) {
         if (peer.id) {
           // Store participant info
@@ -916,7 +1003,13 @@ if (section) {
       for (const pid of peerInfo) await callPeer(pid);
     }
   });
-  socket.on('user-joined', async ({ id, name, isHost: userIsHost }) => { 
+  socket.on('user-joined', async ({ id, name, isHost: userIsHost }) => {
+    // Update cached participants
+    if (cacheManager) {
+      const currentParticipants = cacheManager.getParticipants(meetingId);
+      const updated = [...currentParticipants, { id, name, isHost: userIsHost }];
+      cacheManager.saveParticipants(meetingId, updated);
+    } 
     console.log('[Meeting] User joined:', { id, name, isHost: userIsHost });
     // Store participant info
     if (name) {
@@ -945,7 +1038,14 @@ if (section) {
     participantNames.delete(id);
     peers.get(id)?.close(); 
     peers.delete(id); 
-    removeVideoTile(id); 
+    removeVideoTile(id);
+    
+    // Update cached participants
+    if (cacheManager) {
+      const currentParticipants = cacheManager.getParticipants(meetingId);
+      const updated = currentParticipants.filter(p => p.id !== id);
+      cacheManager.saveParticipants(meetingId, updated);
+    }
   });
 
   socket.on('signal', async ({ from, data }) => {
@@ -989,11 +1089,23 @@ if (section) {
   socket.on('meeting-locked', () => {
     updateLockButtonState(true);
     appendMsg('System', 'Meeting locked by host', Date.now());
+    
+    // Update cached room settings
+    if (cacheManager) {
+      const currentSettings = cacheManager.getRoomSettings(meetingId) || {};
+      cacheManager.saveRoomSettings(meetingId, { ...currentSettings, locked: true });
+    }
   });
   
   socket.on('meeting-unlocked', () => {
     updateLockButtonState(false);
     appendMsg('System', 'Meeting unlocked by host', Date.now());
+    
+    // Update cached room settings
+    if (cacheManager) {
+      const currentSettings = cacheManager.getRoomSettings(meetingId) || {};
+      cacheManager.saveRoomSettings(meetingId, { ...currentSettings, locked: false });
+    }
   });
   
   socket.on('meeting-ended', () => { 

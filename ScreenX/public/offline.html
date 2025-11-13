@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Offline - ScreenX</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            padding: 20px;
+        }
+
+        .offline-container {
+            text-align: center;
+            max-width: 500px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .offline-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        h1 {
+            font-size: 32px;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+
+        p {
+            font-size: 18px;
+            margin-bottom: 30px;
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+
+        .retry-button {
+            background: white;
+            color: #667eea;
+            border: none;
+            padding: 15px 40px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .retry-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .retry-button:active {
+            transform: translateY(0);
+        }
+
+        .status-indicator {
+            margin-top: 20px;
+            font-size: 14px;
+            opacity: 0.8;
+        }
+
+        .status-indicator.online {
+            color: #4ade80;
+        }
+
+        .status-indicator.offline {
+            color: #f87171;
+        }
+    </style>
+</head>
+<body>
+    <div class="offline-container">
+        <div class="offline-icon">📡</div>
+        <h1>You're Offline</h1>
+        <p>It looks like you've lost your internet connection. Please check your network settings and try again.</p>
+        <button class="retry-button" onclick="retryConnection()">Retry Connection</button>
+        <div class="status-indicator offline" id="statusIndicator">
+            Status: Offline
+        </div>
+    </div>
+
+    <script>
+        function retryConnection() {
+            const button = document.querySelector('.retry-button');
+            const statusIndicator = document.getElementById('statusIndicator');
+            
+            button.disabled = true;
+            button.textContent = 'Checking...';
+            
+            // Try to fetch a small resource to check connectivity
+            fetch('/', { method: 'HEAD', cache: 'no-cache' })
+                .then(() => {
+                    // Online - reload page
+                    window.location.reload();
+                })
+                .catch(() => {
+                    // Still offline
+                    button.disabled = false;
+                    button.textContent = 'Retry Connection';
+                    statusIndicator.textContent = 'Status: Still Offline';
+                    statusIndicator.className = 'status-indicator offline';
+                });
+        }
+
+        // Monitor online/offline status
+        window.addEventListener('online', () => {
+            const statusIndicator = document.getElementById('statusIndicator');
+            statusIndicator.textContent = 'Status: Online - Reloading...';
+            statusIndicator.className = 'status-indicator online';
+            setTimeout(() => {
+                window.location.reload();
+            }, 1000);
+        });
+
+        window.addEventListener('offline', () => {
+            const statusIndicator = document.getElementById('statusIndicator');
+            statusIndicator.textContent = 'Status: Offline';
+            statusIndicator.className = 'status-indicator offline';
+        });
+
+        // Check status on load
+        if (navigator.onLine) {
+            setTimeout(() => {
+                retryConnection();
+            }, 1000);
+        }
+    </script>
+</body>
+</html>
+
