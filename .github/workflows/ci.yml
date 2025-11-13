@@ -1,0 +1,65 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  test:
+    name: Test Suite
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Run tests
+      env:
+        # Use GitHub Secrets for Redis credentials in CI
+        # Set these in: Repository Settings > Secrets and variables > Actions
+        REDIS_PASSWORD: ${{ secrets.REDIS_PASSWORD || 'dummy' }}
+        REDIS_HOST: ${{ secrets.REDIS_HOST || 'localhost' }}
+        REDIS_PORT: ${{ secrets.REDIS_PORT || '6379' }}
+        NODE_ENV: test
+        # Optional: Add other secrets as needed
+        # MONGO_URI: ${{ secrets.MONGO_URI }}
+        # OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      run: npm test
+
+    - name: Check for test failures
+      if: failure()
+      run: echo "Tests failed - check the output above"
+
+  security:
+    name: Security Audit
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Run security audit
+      continue-on-error: true
+      run: npm audit --audit-level=moderate
+
+

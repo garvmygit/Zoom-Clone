@@ -1,0 +1,16 @@
+<section class="container mx-auto px-4 py-24 text-center page-enter">
+  <div class="max-w-md mx-auto">
+    <div class="text-6xl mb-4">🔒</div>
+    <h2 class="text-3xl font-semibold mb-4">Access Denied</h2>
+    <p class="text-gray-300 mb-6"><%= typeof message !== 'undefined' ? message : 'You do not have permission to view this meeting.' %></p>
+    <div class="flex gap-3 justify-center">
+      <a href="/" class="btn btn-indigo">
+        <i class="fas fa-home mr-2"></i>Back Home
+      </a>
+      <a href="/join" class="btn btn-gray">
+        <i class="fas fa-sign-in-alt mr-2"></i>Join Meeting
+      </a>
+    </div>
+  </div>
+</section>
+

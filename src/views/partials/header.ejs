@@ -1,0 +1,24 @@
+<header class="glass-strong p-4 flex items-center justify-between">
+  <a href="/" class="flex items-center gap-3 group">
+    <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-indigo-500 via-purple-500 to-fuchsia-500 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+      <i class="fas fa-video text-white text-sm"></i>
+    </div>
+    <span class="text-xl font-bold gradient-text">ScreenX</span>
+  </a>
+  <div class="flex items-center gap-3">
+    <% if (user) { %>
+      <span class="text-sm text-gray-300">Hi, <span class="font-semibold text-white"><%= user.name %></span></span>
+      <form action="/auth/logout" method="post" class="inline">
+        <button class="btn btn-gray text-sm">Logout</button>
+      </form>
+    <% } else { %>
+      <a href="/auth/login" class="btn btn-gray text-sm">Login</a>
+      <a href="/auth/signup" class="btn btn-indigo text-sm">Sign up</a>
+    <% } %>
+  </div>
+</header>
+
+
+
+
+

@@ -1,0 +1,30 @@
+<section class="container mx-auto px-4 py-16 max-w-2xl">
+  <h2 class="text-2xl font-semibold mb-6">Meeting Created</h2>
+  <div class="space-y-3 bg-gray-900/60 border border-gray-800 rounded p-4">
+    <div>
+      <div class="text-xs text-gray-400">Meeting ID</div>
+      <div class="font-mono text-lg" id="sx-id"><%= meetingId %></div>
+    </div>
+    <div>
+      <div class="text-xs text-gray-400">Password</div>
+      <div class="font-mono text-lg" id="sx-pass"><%= password %></div>
+    </div>
+    <div>
+      <div class="text-xs text-gray-400">Join Link</div>
+      <div class="font-mono break-all" id="sx-link"><%= link %></div>
+    </div>
+    <div class="flex flex-wrap gap-2 pt-2">
+      <button id="sx-copy" class="px-3 py-2 bg-gray-800 rounded">Copy Link</button>
+      <button id="sx-copy-all" class="px-3 py-2 bg-gray-800 rounded">Copy All Details</button>
+      <button id="sx-share" class="px-3 py-2 bg-gray-800 rounded">Share</button>
+      <button id="sx-start" class="px-3 py-2 bg-indigo-600 rounded hover:bg-indigo-500 ml-auto">Start Meeting</button>
+    </div>
+  </div>
+  <p class="mt-4 text-sm text-gray-400">Share the link or Meeting ID + Password with participants before starting.</p>
+  <script src="/public/js/created.js"></script>
+</section>
+
+
+
+
+
