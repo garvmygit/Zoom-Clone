@@ -1,12 +1,15 @@
 const express = require("express");
 const { v4: uuidV4 } = require("uuid");
 //
-const router = express.Router();
+//const router = express.Router();
 
 // Home page
 router.get("/", (req, res) => {
   res.render("index");
 });
+// router.get("/", (req, res) => {
+//   res.render("index");
+// });
 
 // Create new room
 router.get("/create", (req, res) => {
@@ -19,3 +22,7 @@ router.get("/room/:roomId", (req, res) => {
 });
 
 module.exports = router;
+// router.get("/", (req, res) => {
+//   res.render("index");
+// });
+
