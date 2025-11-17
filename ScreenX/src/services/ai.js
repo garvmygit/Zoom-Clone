@@ -1,10 +1,10 @@
 import OpenAI from 'openai';
 
-// Get and validate OpenAI API key
+// Get and validate OpenAI API key from environment variables
 const openaiKey = process.env.OPENAI_API_KEY?.trim();
 const openai = openaiKey && openaiKey.length > 0 ? new OpenAI({ apiKey: openaiKey }) : null;
 
-// Log configuration status on module load
+// Log status based on whether API key is configured or not
 if (!openai) {
   console.warn('[AI Service] OpenAI API key not configured. AI features will be disabled.');
   console.warn('[AI Service] Set OPENAI_API_KEY in your .env file to enable AI features.');
@@ -12,8 +12,7 @@ if (!openai) {
   console.log('[AI Service] OpenAI API configured and ready.');
 }
 
-// my changes
-
+// Function to generate a summary of the meeting transcript
 export async function aiSummarizeTranscript(transcript, meetingId, participants = []) {
   if (!openai) {
     console.error('[AI] OpenAI not configured - OPENAI_API_KEY missing');
@@ -30,6 +29,7 @@ export async function aiSummarizeTranscript(transcript, meetingId, participants 
       ? `\n\nParticipants: ${participants.join(', ')}`
       : '';
     
+    // System prompt to instruct the AI about how to format its response
     const systemPrompt = `You are an AI meeting assistant. Your task is to create a clear, structured, and comprehensive summary of the meeting transcript provided. 
 
 Format your summary as follows:
@@ -56,6 +56,7 @@ Format your summary as follows:
 
 Be concise but thorough. Use bullet points for clarity.`;
 
+    // User prompt includes meeting data and transcript
     const userPrompt = `Meeting ID: ${meetingId}${participantsList}
 
 TRANSCRIPT:
@@ -66,6 +67,7 @@ Please provide a comprehensive summary following the format specified above.`;
     console.log('[AI] Generating summary for meeting:', meetingId);
     console.log('[AI] Transcript length:', transcript.length, 'characters');
     
+    // Call OpenAI to generate the summary
     const res = await openai.chat.completions.create({
       model: 'gpt-4o-mini',
       messages: [
@@ -111,6 +113,7 @@ Please provide a comprehensive summary following the format specified above.`;
   }
 }
 
+// Function to detect specific meeting-related commands from user prompts
 export function detectCommand(prompt) {
   const lower = prompt.toLowerCase().trim();
   const commands = {
@@ -129,6 +132,7 @@ export function detectCommand(prompt) {
     'meeting summary': 'summarize',
   };
   
+  // Loop through command keys and match them with user input
   for (const [key, value] of Object.entries(commands)) {
     if (lower.includes(key)) {
       return value;
@@ -137,12 +141,14 @@ export function detectCommand(prompt) {
   return null;
 }
 
+// Function to generate AI chatbot reply for user query
 export async function aiChatbotReply(prompt, meetingId, context = {}) {
   if (!openai) {
     console.warn('[AI] OpenAI not configured - returning error message');
     return { reply: 'AI is not configured. Please set OPENAI_API_KEY in your .env file to enable AI features.', command: null };
   }
   
+  // Check if a specific command was detected
   const command = detectCommand(prompt);
   if (command) {
     console.log('[AI] Command detected:', command);
@@ -152,6 +158,7 @@ export async function aiChatbotReply(prompt, meetingId, context = {}) {
   try {
     console.log('[AI] Generating chatbot reply for prompt:', prompt.substring(0, 50));
     
+    // System prompt guiding assistant behavior
     const systemPrompt = `You are ScreenX Assistant, a helpful AI assistant for video conferencing meetings. 
 - Be friendly, concise, and helpful
 - Answer questions about the meeting, participants, and general topics
@@ -160,6 +167,7 @@ export async function aiChatbotReply(prompt, meetingId, context = {}) {
 - You can help with meeting controls, summaries, and general questions
 - Be conversational and engaging`;
 
+    // Include recent chat context if provided
     const userContext = context.chatHistory 
       ? `Recent chat context:\n${context.chatHistory}\n\n`
       : '';
@@ -167,6 +175,8 @@ export async function aiChatbotReply(prompt, meetingId, context = {}) {
     const userPrompt = `${userContext}User question: ${prompt}`;
     
     console.log('[AI] Calling OpenAI API...');
+    
+    // Make API call to OpenAI for generating a response
     const res = await openai.chat.completions.create({
       model: 'gpt-4o-mini',
       messages: [
@@ -220,8 +230,3 @@ export async function aiChatbotReply(prompt, meetingId, context = {}) {
     return { reply: 'Error: Unknown error occurred. Please check your OPENAI_API_KEY and try again.', command: null };
   }
 }
-
-
-
-
-
