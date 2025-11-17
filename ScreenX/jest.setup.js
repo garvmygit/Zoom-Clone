@@ -10,3 +10,6 @@ process.env.NODE_ENV = process.env.NODE_ENV || 'test';
 // General test setup logging
 console.log('✅ Jest environment initialized for ScreenX');
 
+
+// Set dummy Redis password for tests to silence warnings
+// Tests use mocked Redis, so no real credentials are needed

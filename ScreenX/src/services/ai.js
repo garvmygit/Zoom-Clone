@@ -12,6 +12,8 @@ if (!openai) {
   console.log('[AI Service] OpenAI API configured and ready.');
 }
 
+// my changes
+
 export async function aiSummarizeTranscript(transcript, meetingId, participants = []) {
   if (!openai) {
     console.error('[AI] OpenAI not configured - OPENAI_API_KEY missing');

@@ -17,7 +17,7 @@ export function configurePassport(passport) {
       if (!user) {
         return done(null, false, { message: 'User not found' });
       }
-      
+      //function
       // Validate user has password hash before attempting comparison
       if (!user.passwordHash || typeof user.passwordHash !== 'string') {
         console.error('[Passport] User found but has no password hash:', email);
@@ -39,7 +39,7 @@ export function configurePassport(passport) {
   passport.serializeUser((user, done) => {
     done(null, user.id);
   });
-
+//passport
   passport.deserializeUser(async (id, done) => {
     try {
       const user = await User.findById(id);
