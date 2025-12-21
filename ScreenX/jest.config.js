@@ -1,3 +1,9 @@
+module.exports = {
+  testEnvironment: 'node',
+  setupFilesAfterEnv: ['<rootDir>/tests/setup.js'],
+  testTimeout: 15000,
+  forceExit: true
+};
 export default {
   testEnvironment: 'node',
   transform: {}, // ESM mode — no Babel transform needed

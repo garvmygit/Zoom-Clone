@@ -9,7 +9,7 @@ const REDIS_PASSWORD = process.env.REDIS_PASSWORD;
 const REDIS_USERNAME = process.env.REDIS_USERNAME || 'default';
 
 if (!REDIS_PASSWORD) {
-  console.warn('[Redis] Warning: REDIS_PASSWORD not set. Caching will be disabled.');
+  if (process.env.NODE_ENV !== 'test') console.warn('[Redis] Warning: REDIS_PASSWORD not set. Caching will be disabled.');
 }
 
 // Use URL format for Redis Cloud (more reliable)
@@ -23,7 +23,7 @@ const redisClient = createClient({
     reconnectStrategy: (retries) => {
       // Stop retrying after 3 attempts to prevent infinite loops
       if (retries > 3) {
-        console.error('[Redis] Max reconnection attempts reached. Stopping retries.');
+        if (process.env.NODE_ENV !== 'test') console.error('[Redis] Max reconnection attempts reached. Stopping retries.');
         return false; // Stop reconnecting
       }
       return Math.min(retries * 100, 3000); // Exponential backoff
@@ -36,14 +36,14 @@ let connectionSuccessful = false;
 
 redisClient.on('connect', () => {
   if (!connectionSuccessful) {
-    console.log('✅ Redis connected successfully.');
+    if (process.env.NODE_ENV !== 'test') console.log('✅ Redis connected successfully.');
     connectionSuccessful = true;
   }
 });
 
 redisClient.on('ready', () => {
   if (!connectionSuccessful) {
-    console.log('✅ Redis ready and operational.');
+    if (process.env.NODE_ENV !== 'test') console.log('✅ Redis ready and operational.');
     connectionSuccessful = true;
   }
 });
@@ -51,11 +51,13 @@ redisClient.on('ready', () => {
 redisClient.on('error', (err) => {
   // Only log errors if we haven't successfully connected
   if (!connectionSuccessful) {
-    console.error('❌ Redis connection error:', err.message);
-    // If it's an authentication error, don't keep retrying
-    if (err.message.includes('WRONGPASS') || err.message.includes('AUTH') || err.message.includes('NOAUTH')) {
-      console.error('[Redis] Authentication failed. Please check REDIS_PASSWORD and REDIS_USERNAME in .env');
-      console.error('[Redis] Caching will be disabled until credentials are corrected.');
+    if (process.env.NODE_ENV !== 'test') {
+      console.error('❌ Redis connection error:', err.message);
+      // If it's an authentication error, don't keep retrying
+      if (err.message.includes('WRONGPASS') || err.message.includes('AUTH') || err.message.includes('NOAUTH')) {
+        console.error('[Redis] Authentication failed. Please check REDIS_PASSWORD and REDIS_USERNAME in .env');
+        console.error('[Redis] Caching will be disabled until credentials are corrected.');
+      }
     }
   }
 });
@@ -74,7 +76,7 @@ export async function connectRedis() {
   
   // Don't attempt connection if password is missing
   if (!REDIS_PASSWORD) {
-    console.warn('[Redis] Skipping connection - REDIS_PASSWORD not set.');
+    if (process.env.NODE_ENV !== 'test') console.warn('[Redis] Skipping connection - REDIS_PASSWORD not set.');
     return;
   }
   
@@ -83,7 +85,7 @@ export async function connectRedis() {
       await redisClient.connect();
     }
   } catch (err) {
-    console.error('[Redis] Connection failed:', err.message);
+    if (process.env.NODE_ENV !== 'test') console.error('[Redis] Connection failed:', err.message);
     // Don't throw - allow app to continue without Redis (graceful degradation)
     connectionAttempted = false; // Allow retry on next server restart
   }
@@ -111,7 +113,7 @@ export async function getOrSetCache(key, fetchFn, ttl = 3600) {
     console.log(`💾 Cache stored for key: ${key}`);
     return data;
   } catch (err) {
-    console.error('[Redis] Cache error:', err.message);
+    if (process.env.NODE_ENV !== 'test') console.error('[Redis] Cache error:', err.message);
     return await fetchFn();
   }
 }

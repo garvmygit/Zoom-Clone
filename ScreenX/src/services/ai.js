@@ -6,16 +6,18 @@ const openai = openaiKey && openaiKey.length > 0 ? new OpenAI({ apiKey: openaiKe
 
 // Log status based on whether API key is configured or not
 if (!openai) {
-  console.warn('[AI Service] OpenAI API key not configured. AI features will be disabled.');
-  console.warn('[AI Service] Set OPENAI_API_KEY in your .env file to enable AI features.');
+  if (process.env.NODE_ENV !== 'test') {
+    console.warn('[AI Service] OpenAI API key not configured. AI features will be disabled.');
+    console.warn('[AI Service] Set OPENAI_API_KEY in your .env file to enable AI features.');
+  }
 } else {
-  console.log('[AI Service] OpenAI API configured and ready.');
+  if (process.env.NODE_ENV !== 'test') console.log('[AI Service] OpenAI API configured and ready.');
 }
 
 // Function to generate a summary of the meeting transcript
 export async function aiSummarizeTranscript(transcript, meetingId, participants = []) {
   if (!openai) {
-    console.error('[AI] OpenAI not configured - OPENAI_API_KEY missing');
+    if (process.env.NODE_ENV !== 'test') console.error('[AI] OpenAI not configured - OPENAI_API_KEY missing');
     return 'AI is not configured. Provide OPENAI_API_KEY to enable summaries.';
   }
   
@@ -144,7 +146,7 @@ export function detectCommand(prompt) {
 // Function to generate AI chatbot reply for user query
 export async function aiChatbotReply(prompt, meetingId, context = {}) {
   if (!openai) {
-    console.warn('[AI] OpenAI not configured - returning error message');
+    if (process.env.NODE_ENV !== 'test') console.warn('[AI] OpenAI not configured - returning error message');
     return { reply: 'AI is not configured. Please set OPENAI_API_KEY in your .env file to enable AI features.', command: null };
   }
   
