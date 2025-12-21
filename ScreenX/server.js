@@ -3,6 +3,7 @@ import fs from 'fs';
 import http from 'http';
 import https from 'https';
 import express from 'express';
+import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import session from 'express-session';
@@ -24,7 +25,7 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 
-// Trust proxy in production (Vercel etc.)
+// Trust proxy in production (Render/behind proxy)
 if (process.env.NODE_ENV === 'production') {
   app.set('trust proxy', 1);
 }
@@ -50,16 +51,57 @@ try {
 
 // Security & parsing
 app.use(helmet());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// Body size limits to protect from large payloads
+app.use(express.json({ limit: process.env.BODY_LIMIT || '100kb' }));
+app.use(express.urlencoded({ extended: true, limit: process.env.BODY_LIMIT || '100kb' }));
+
+// CORS - use ALLOWED_ORIGIN environment variable in production
+const allowedOrigin = process.env.ALLOWED_ORIGIN || (process.env.NODE_ENV === 'production' ? '' : '*');
+app.use(cors({ origin: allowedOrigin || true, credentials: true }));
+
+// Basic in-memory rate limiter (per IP) for critical routes
+const rateWindows = new Map();
+function rateLimit({ windowMs = 60000, max = 60 } = {}) {
+  return (req, res, next) => {
+    try {
+      const key = req.ip || req.headers['x-forwarded-for'] || req.connection.remoteAddress || 'anon';
+      const now = Date.now();
+      let entry = rateWindows.get(key);
+      if (!entry || now - entry.start > windowMs) {
+        entry = { start: now, count: 0 };
+      }
+      entry.count += 1;
+      rateWindows.set(key, entry);
+      if (entry.count > max) {
+        return res.status(429).json({ error: 'Too many requests' });
+      }
+      return next();
+    } catch (e) {
+      return next();
+    }
+  };
+}
+
+// Apply conservative limiter to auth and api routes
+app.use('/auth', rateLimit({ windowMs: 60000, max: 30 }));
+app.use('/api', rateLimit({ windowMs: 60000, max: 60 }));
 
 // Sessions & Passport
+if (process.env.NODE_ENV === 'production' && !process.env.SESSION_SECRET) {
+  throw new Error('SESSION_SECRET must be set in production');
+}
 const sessionMiddleware = session({
   secret: process.env.SESSION_SECRET || 'screenx-secret',
+  name: process.env.SESSION_COOKIE_NAME || 'screenx.sid',
   resave: false,
   saveUninitialized: false,
   store: mongoConnected ? MongoStore.create({ mongoUrl: mongoUri }) : new session.MemoryStore(),
-  cookie: { maxAge: 1000 * 60 * 60 * 24 }
+  cookie: {
+    maxAge: 1000 * 60 * 60 * 24,
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: process.env.NODE_ENV === 'production' ? 'lax' : 'lax'
+  }
 });
 app.use(sessionMiddleware);
 app.use(passport.initialize());
@@ -153,25 +195,84 @@ function loadSSLOptions() {
 }
 
 const sslOptions = loadSSLOptions();
-if (sslOptions) {
+// Render provides TLS termination; do not require local certs in production
+if (sslOptions && process.env.NODE_ENV !== 'production') {
   server = https.createServer(sslOptions, app);
 } else {
-  // fallback to plain HTTP for local/dev/test environments
+  // fallback to plain HTTP for local/dev/test or when certs absent
   server = http.createServer(app);
 }
 
-io = new SocketIOServer(server, { cors: { origin: '*' } });
+const sioCors = {
+  origin: process.env.ALLOWED_ORIGIN || (process.env.NODE_ENV === 'production' ? '' : '*'),
+  methods: ['GET', 'POST'],
+  credentials: true
+};
+
+io = new SocketIOServer(server, {
+  cors: sioCors,
+  pingInterval: 25000,
+  pingTimeout: 60000,
+  transports: ['websocket', 'polling']
+});
 io.engine.use((req, res, next) => sessionMiddleware(req, res, next));
+// Socket.IO middleware: origin check and simple rate limiting per socket
+const socketRate = new Map();
+io.use((socket, next) => {
+  try {
+    const origin = socket.handshake.headers.origin;
+    if (process.env.ALLOWED_ORIGIN && process.env.ALLOWED_ORIGIN !== '' && origin && origin !== process.env.ALLOWED_ORIGIN) {
+      return next(new Error('Origin not allowed'));
+    }
+    const addr = socket.handshake.address || socket.handshake.headers['x-forwarded-for'] || socket.conn?.remoteAddress || 'anon';
+    let entry = socketRate.get(addr);
+    const now = Date.now();
+    if (!entry || now - entry.start > 60000) entry = { start: now, count: 0 };
+    entry.count += 1;
+    socketRate.set(addr, entry);
+    if (entry.count > 300) return next(new Error('Rate limit')); // permissive default
+    return next();
+  } catch (e) {
+    return next();
+  }
+});
 registerSocketHandlers(io);
 
 // Only listen when not running tests
-const PORT = Number(process.env.PORT) || (sslOptions ? 4433 : 3000);
+const PORT = Number(process.env.PORT) || 3000;
 if (process.env.NODE_ENV !== 'test') {
   server.listen(PORT, () => {
     // eslint-disable-next-line no-console
-    console.log(`${sslOptions ? '[ScreenX] 🔒 HTTPS' : '[ScreenX] HTTP'} Server listening on port ${PORT}`);
+    console.log(`[ScreenX] Server listening on port ${PORT}`);
   });
 }
+
+// Basic error handler to avoid leaking stack traces in production
+app.use((err, req, res, _next) => {
+  // eslint-disable-next-line no-console
+  if (process.env.NODE_ENV !== 'production') console.error(err);
+  res.status(err.status || 500).json({ error: process.env.NODE_ENV === 'production' ? 'Internal server error' : err.message });
+});
+
+// Graceful shutdown
+async function shutdown(signal) {
+  // eslint-disable-next-line no-console
+  console.log(`[ScreenX] Received ${signal}, shutting down`);
+  try {
+    if (io && io.close) io.close();
+    if (server && server.close) await new Promise((r) => server.close(r));
+    try { await mongoose.disconnect(); } catch (e) {}
+    try { await redisClient.disconnect(); } catch (e) {}
+  } catch (e) {
+    // eslint-disable-next-line no-console
+    console.error('Error during shutdown', e);
+  } finally {
+    process.exit(0);
+  }
+}
+
+process.on('SIGINT', () => shutdown('SIGINT'));
+process.on('SIGTERM', () => shutdown('SIGTERM'));
 
 export { app };
 export default server;

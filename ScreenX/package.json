@@ -40,4 +40,8 @@
   "overrides": {
     "superagent": "^10.2.2"
   }
+  ,
+  "engines": {
+    "node": ">=18"
+  }
 }
